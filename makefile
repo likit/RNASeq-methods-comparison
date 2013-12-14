@@ -10,3 +10,7 @@ prepare-reference-rsem:
 	rsem-prepare-reference --gtf Gallus_UCSC_ensembl_73.gtf.removed \
 		--transcript-to-gene-map Gallus_UCSC_ensembl_73.knownIsoforms.txt \
 		galGal4-removed.fa galGal4-removed
+
+rsem-calc-expression:
+	qsub -v input_read="reads/line6u.se.fq",sample_name="line6u-single-rsem" \
+		protocols/rsem_calculate_expr.sh
