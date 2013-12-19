@@ -29,3 +29,17 @@ rsem-calc-expression:
 		protocols/rsem_calculate_expr_paired.sh
 	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
 		protocols/rsem_calculate_expr_paired.sh
+
+ebseq-line6:
+	rsem-generate-data-matrix line6u-single-rsem.genes.results \
+		line6u-paired-rsem.genes.results line6i-single-rsem.genes.results \
+		line6i-paired-rsem.genes.results > line6u_vs_i.gene.counts.matrix
+	rsem-run-ebseq line6u_vs_i.gene.counts.matrix 2,2 line6u_vs_i.degenes
+	rsem-control-fdr line6u_vs_i.degenes 0.05 line6u_vs_i.degenes.fdr.05
+
+ebseq-line7:
+	rsem-generate-data-matrix line7u-single-rsem.genes.results \
+		line7u-paired-rsem.genes.results line7i-single-rsem.genes.results \
+		line7i-paired-rsem.genes.results > line7u_vs_i.gene.counts.matrix
+	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
+	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
