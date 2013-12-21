@@ -43,3 +43,31 @@ ebseq-line7:
 		line7i-paired-rsem.genes.results > line7u_vs_i.gene.counts.matrix
 	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
 	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
+
+quality-trim-pe:
+	# perl ~/condetri_v2.1.pl -fastq1=reads/line7u.pe.1 -fastq2=reads/line7u.pe.2 -cutfirst 10 -sc=33
+	qsub -v left=reads/line7i.pe.1,right=reads/line7i.pe.2 protocols/quality_trim_pe_job.sh
+
+quality-trim-se:
+	for r in reads/*.se.fq; do qsub -v input="$$r" protocols/quality_trim_se_job.sh; done
+
+run-velveth:
+	cd assembly; qsub -v pe_input="paired.fastq",se_input="single.fastq" ../protocols/velveth_job.sh
+
+run-velvetg:
+	cd assembly; qsub ../protocols/velvetg_job.sh
+
+tophat-pe:
+	cd tophat; qsub -v left=../reads/line6u.pe.1,right=../reads/line6u.pe.2,outdir=line6u_pe,index=gal4selected \
+		../protocols/tophat_pe_job.sh
+
+tophat-se:
+	cd tophat; qsub -v input=../reads/line7u.se.fq,outdir=line7u_se,index=gal4selected \
+		../protocols/tophat_se_job.sh
+
+run-cufflinks:
+	cd tophat; for d in line??_?e; do qsub -v outdir="$$d",input="$$d/accepted_hits.bam" \
+		../protocols/cufflinks_job.sh; echo $$d; done
+
+run-cuffmerge:
+	cd tophat; cuffmerge -o merged_cuff_denovo -s gal4selected.fa -p 4 merge_list.txt
