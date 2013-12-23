@@ -1,3 +1,4 @@
+##### RSEM from Ensembl annotations #####
 preprocess-ucsc-gene-models:
 	cat Gallus_UCSC_ensembl_73.gtf | cut -f 1 | sort | uniq -c | \
 		grep -v -e random -e chrUn > Gallus_UCSC_ensembl_73.gtf.removed
@@ -44,6 +45,7 @@ ebseq-line7:
 	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
 	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
 
+##### De novo assembly (global + local) #####
 run-quality-trim-pe:
 	# perl ~/condetri_v2.1.pl -fastq1=reads/line7u.pe.1 -fastq2=reads/line7u.pe.2 -cutfirst 10 -sc=33
 	qsub -v left=reads/line7i.pe.1,right=reads/line7i.pe.2 protocols/quality_trim_pe_job.sh
@@ -60,6 +62,7 @@ run-velveth:
 run-velvetg:
 	cd assembly; qsub ../protocols/velvetg_job.sh
 
+##### Tuxedo suit (Tophat + Cufflinks) #####
 run-tophat-pe:
 	cd tophat; qsub -v left=../reads/line6u.pe.1,right=../reads/line6u.pe.2,outdir=line6u_pe,index=gal4selected \
 		../protocols/tophat_pe_job.sh
