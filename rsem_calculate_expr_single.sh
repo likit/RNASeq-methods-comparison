@@ -6,4 +6,4 @@
 
 cd ${PBS_O_WORKDIR}
 module load bowtie
-/mnt/home/preeyano/rsem-1.2.7/rsem-calculate-expression --output-genome-bam --time -p 4 ${input_read} galGal4-removed ${sample_name}
+/mnt/home/preeyano/rsem-1.2.7/rsem-calculate-expression --output-genome-bam --time -p 4 ${input_read} ${index} ${sample_name}
