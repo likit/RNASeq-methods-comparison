@@ -81,16 +81,28 @@ run-cuffmerge:
 run-rsem-cufflinks-denovo:
 	cd tophat/merged_cuff_denovo; cat merged.gtf | python ../../protocols/fix-gtf.py > merged.rsem.gtf 
 	cd tophat/merged_cuff_denovo; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-denovo
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
 		../../protocols/rsem_calculate_expr_single.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
 		../../protocols/rsem_calculate_expr_single.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
 		../../protocols/rsem_calculate_expr_single.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
 		../../protocols/rsem_calculate_expr_single.sh
 
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" ../../protocols/rsem_calculate_expr_paired.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" ../../protocols/rsem_calculate_expr_paired.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" ../../protocols/rsem_calculate_expr_paired.sh
-	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" ../../protocols/rsem_calculate_expr_paired.sh
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
+		../../protocols/rsem_calculate_expr_paired.sh
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
+		../../protocols/rsem_calculate_expr_paired.sh
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
+		../../protocols/rsem_calculate_expr_paired.sh
+	cd tophat/merged_cuff_denovo; \
+		qsub -v index="merged-denovo",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
+		../../protocols/rsem_calculate_expr_paired.sh
