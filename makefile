@@ -45,6 +45,7 @@ ebseq-line7:
 	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
 	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
 
+
 ##### De novo assembly (global + local) #####
 run-quality-trim-pe:
 	# perl ~/condetri_v2.1.pl -fastq1=reads/line7u.pe.1 -fastq2=reads/line7u.pe.2 -cutfirst 10 -sc=33
@@ -61,6 +62,15 @@ run-velveth:
 
 run-velvetg:
 	cd assembly; qsub ../protocols/velvetg_job.sh
+
+run-oases:
+	cd assembly; qsub ../protocols/oases_job.sh
+
+run-oasesM:
+	cd assembly; qsub ../protocols/velvethM_job.sh
+	cd assembly; qsub ../protocols/velvetgM_job.sh
+	cd assembly; qsub ../protocols/oasesM_job.sh
+
 
 ##### Tuxedo suit (Tophat + Cufflinks) #####
 run-tophat-pe:
