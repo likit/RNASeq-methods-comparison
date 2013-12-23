@@ -76,8 +76,8 @@ run-cuffmerge:
 	cd tophat; cuffmerge -o merged_cuff_denovo -s gal4selected.fa -p 4 merge_list.txt
 
 run-rsem-cufflinks-denovo:
-	#cd tophat/merged_cuff_denovo; cat merged.gtf | python ../../protocols/fix-gtf.py > merged.rsem.gtf 
-	#cd tophat/merged_cuff_denovo; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-denovo
+	cd tophat/merged_cuff_denovo; cat merged.gtf | python ../../protocols/fix-gtf.py > merged.rsem.gtf 
+	cd tophat/merged_cuff_denovo; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-denovo
 	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
 		../../protocols/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; qsub -v index="merged-denovo",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
