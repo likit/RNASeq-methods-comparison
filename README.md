@@ -4,8 +4,8 @@ RNASeq-methods-comparison
 This project aims to compare the results of biological network analysis
 from RNASeq data using gene models from following methods:
 * Tophat/Cufflinks (with and without integration of Ensembl gene models)
-* __De novo__ assembly
-* __De novo__ assembly + local assembly (reference guided)
+* _De novo_ assembly
+* _De novo_ assembly + local assembly (reference guided)
 * Ensembl predicted gene models
 
 Required software
