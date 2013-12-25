@@ -21,3 +21,6 @@ Please make sure all required software is available on your machine.
 * BLAT
 * RSEM 1.2.7
 * Condetri 2.1
+
+All software for Linux 64-bit machine can be downloaded at
+http://athyra.ged.msu.edu/~preeyano/software/.
