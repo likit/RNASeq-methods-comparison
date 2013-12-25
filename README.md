@@ -2,7 +2,7 @@ RNASeq-methods-comparison
 =========================
 
 This project aims to compare the results of biological network analysis
-from transcripts from following methods:
+from RNASeq data using gene models from following methods:
 * Tophat/Cufflinks (with and without integration of Ensembl gene models)
 * De novo assembly
 * De novo assembly + Local assembly (reference guided)
