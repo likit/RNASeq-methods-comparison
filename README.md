@@ -13,11 +13,11 @@ Required software
 
 Please make sure all required software is available on your machine.
 * Bowtie 1.0
-* Bowtie 2.0.1
-* Tophat
-* Cufflinks
-* Velvet
-* Oases
+* Bowtie 2.1.0
+* Tophat 2.0.9
+* Cufflinks 2.0.0
+* Velvet 1.2.03
+* Oases 0.2.06
 * BLAT
-* RSEM
-* Condetri
+* RSEM 1.2.7
+* Condetri 2.1
