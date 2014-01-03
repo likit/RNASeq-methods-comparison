@@ -16,23 +16,23 @@ run-rsem-prepare-reference:
 
 run-rsem-calc-expression:
 
-	qsub -v input_read="reads/line6u.se.fq",sample_name="line6u-single-rsem" \
-		protocols/rsem_calculate_expr_single.sh
-	qsub -v input_read="reads/line6i.se.fq",sample_name="line6i-single-rsem" \
-		protocols/rsem_calculate_expr_single.sh
-	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem" \
-		protocols/rsem_calculate_expr_single.sh
-	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem" \
-		protocols/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line6u.se.fq",sample_name="line6u-single-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line6i.se.fq",sample_name="line6i-single-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_single.sh
 
-	qsub -v input_read1="reads/line6u.pe.1",input_read2="reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
-		protocols/rsem_calculate_expr_paired.sh
-	qsub -v input_read1="reads/line6i.pe.1",input_read2="reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
-		protocols/rsem_calculate_expr_paired.sh
-	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
-		protocols/rsem_calculate_expr_paired.sh
-	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
-		protocols/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line6u.pe.1",input_read2="reads/line6u.pe.2",sample_name="line6u-paired-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line6i.pe.1",input_read2="reads/line6i.pe.2",sample_name="line6i-paired-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="galGal4-removed" \
+		protocol/rsem_calculate_expr_paired.sh
 
 ebseq-line6:
 
@@ -56,11 +56,11 @@ ebseq-line7:
 run-quality-trim-pe:
 
 	perl ~/condetri_v2.1.pl -fastq1=reads/line7u.pe.1 -fastq2=reads/line7u.pe.2 -cutfirst 10 -sc=33
-	qsub -v left=reads/line7i.pe.1,right=reads/line7i.pe.2 protocols/quality_trim_pe_job.sh
+	qsub -v left=reads/line7i.pe.1,right=reads/line7i.pe.2 protocol/quality_trim_pe_job.sh
 
 run-quality-trim-se:
 
-	for r in reads/*.se.fq; do qsub -v input="$$r" protocols/quality_trim_se_job.sh; done
+	for r in reads/*.se.fq; do qsub -v input="$$r" protocol/quality_trim_se_job.sh; done
 
 interleave-reads:
 
@@ -68,31 +68,31 @@ interleave-reads:
 
 run-velveth:
 
-	cd assembly; qsub -v pe_input="paired.fastq",se_input="single.fastq" ../protocols/velveth_job.sh
+	cd assembly; qsub -v pe_input="paired.fastq",se_input="single.fastq" ../protocol/velveth_job.sh
 
 run-velvetg:
 
-	cd assembly; qsub ../protocols/velvetg_job.sh
+	cd assembly; qsub ../protocol/velvetg_job.sh
 
 run-oases:
 
-	cd assembly; qsub ../protocols/oases_job.sh
+	cd assembly; qsub ../protocol/oases_job.sh
 
 run-oasesM:
 
-	cd assembly; qsub ../protocols/velvethM_job.sh
-	cd assembly; qsub ../protocols/velvetgM_job.sh
-	cd assembly; qsub ../protocols/oasesM_job.sh
+	cd assembly; qsub ../protocol/velvethM_job.sh
+	cd assembly; qsub ../protocol/velvetgM_job.sh
+	cd assembly; qsub ../protocol/oasesM_job.sh
 
 clean-transcripts:
 	# -A needed to keep poly-A tail
 	cd assembly/global_merged; ~/seqclean-x86_64/seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
-	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" protocols/cdhit_job.sh
+	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" protocol/cdhit_job.sh
 
 run-rsem-prepare-reference-global-asm:
 
-	cd assembly/global_merged; cat transcripts.fa.clean.nr | python ../../protocols/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
-	cd assembly/global_merged; qsub ../../protocols/rsem_prepare_reference.sh
+	cd assembly/global_merged; cat transcripts.fa.clean.nr | python ../../protocol/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
+	cd assembly/global_merged; qsub ../../protocol/rsem_prepare_reference.sh
 
 run-rsem-calc-expression-global-asm:
 
@@ -118,17 +118,17 @@ run-rsem-calc-expression-global-asm:
 
 run-tophat-pe:
 	cd tophat; qsub -v left=../reads/line6u.pe.1,right=../reads/line6u.pe.2,outdir=line6u_pe,index=gal4selected \
-		../protocols/tophat_pe_job.sh
+		../protocol/tophat_pe_job.sh
 
 run-tophat-se:
 
 	cd tophat; qsub -v input=../reads/line7u.se.fq,outdir=line7u_se,index=gal4selected \
-		../protocols/tophat_se_job.sh
+		../protocol/tophat_se_job.sh
 
 run-cufflinks:
 
 	cd tophat; for d in line??_?e; do qsub -v outdir="$$d",input="$$d/accepted_hits.bam" \
-		../protocols/cufflinks_job.sh; echo $$d; done
+		../protocol/cufflinks_job.sh; echo $$d; done
 
 run-cuffmerge:
 
@@ -136,61 +136,61 @@ run-cuffmerge:
 
 run-rsem-cufflinks-denovo:
 
-	cd tophat/merged_cuff_denovo; cat merged.gtf | python ../../protocols/fix-gtf.py > merged.rsem.gtf 
+	cd tophat/merged_cuff_denovo; cat merged.gtf | python ../../protocol/fix-gtf.py > merged.rsem.gtf 
 	cd tophat/merged_cuff_denovo; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-denovo
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 
 run-rsem-cufflinks-ref:
 
-	cd tophat/merged_cuff_ref; cat merged.gtf | python ../../protocols/fix-gtf.py > merged.rsem.gtf 
+	cd tophat/merged_cuff_ref; cat merged.gtf | python ../../protocol/fix-gtf.py > merged.rsem.gtf 
 	cd tophat/merged_cuff_ref; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-ref
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
-		../../protocols/rsem_calculate_expr_single.sh
+		../../protocol/rsem_calculate_expr_single.sh
 
 	cd tophat/merged_cuff_ref; \
 
 		qsub -v index="merged-ref",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
-		../../protocols/rsem_calculate_expr_paired.sh
+		../../protocol/rsem_calculate_expr_paired.sh
