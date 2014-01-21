@@ -98,21 +98,17 @@ run-rsem-calc-expression-global-asm:
 
 	cd assembly/global_merged; qsub -v input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem",index="transcripts-rsem" \
 		../../protocol/rsem_calculate_expr_single.sh
-	cd assebmly/global_merged; qsub -v input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem",index="transcripts-rsem" \
+	cd assembly/global_merged; qsub -v input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem",index="transcripts-rsem" \
 		../../protocol/rsem_calculate_expr_single.sh
-	cd assebmly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem",index="transcripts-rsem" \
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem",index="transcripts-rsem" \
 		../../protocol/rsem_calculate_expr_single.sh
-	cd assebmly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem",index="transcripts-rsem" \
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem",index="transcripts-rsem" \
 		../../protocol/rsem_calculate_expr_single.sh
 
-	cd assebmly/global_merged; qsub -v input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem",\
-		index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
-	cd assebmly/global_merged; qsub -v input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem",\
-		index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
-	cd assebmly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",\
-		index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
-	cd assebmly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",\
-		index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
 
 ##### Tuxedo suit (Tophat + Cufflinks) #####
 
