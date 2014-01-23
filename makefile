@@ -50,6 +50,18 @@ ebseq-line7:
 	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
 	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
 
+prepare-for-blast2go:
+
+	#python protocol/rsem-output-ensbl-to-fasta.py line6u_vs_i.degenes.fdr.05 Gallus_gallus.Galgal4.73.pep.all.fa > line6u_vs_i.degenes.fdr.05.fa 
+	#python protocol/rsem-output-ensbl-to-fasta.py line7u_vs_i.degenes.fdr.05 Gallus_gallus.Galgal4.73.pep.all.fa > line7u_vs_i.degenes.fdr.05.fa 
+	#python protocol/gene-rep-ensbl.py line6u_vs_i.degenes.fdr.05.fa > line6u_vs_i.degenes.fdr.05.fa.prot.longest
+	#python protocol/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.prot.longest
+	#python protocol/split-fa.py line6u_vs_i.degenes.fdr.05.fa.prot.longest 100 line6u_vs_i.degenes.fdr.05.fa.prot.longest
+	#python protocol/split-fa.py line7u_vs_i.degenes.fdr.05.fa.prot.longest 100 line7u_vs_i.degenes.fdr.05.fa.prot.longest
+
+	for f in *prot.longest*.fa; do \
+		qsub -v input="$$f",program="blastp" protocol/blast.sh; \
+	done
 
 ##### De novo assembly (global + local) #####
 
@@ -190,3 +202,4 @@ run-rsem-cufflinks-ref:
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
 		../../protocol/rsem_calculate_expr_paired.sh
+
