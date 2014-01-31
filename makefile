@@ -58,10 +58,22 @@ prepare-for-blast2go:
 	#python protocol/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.prot.longest
 	#python protocol/split-fa.py line6u_vs_i.degenes.fdr.05.fa.prot.longest 100 line6u_vs_i.degenes.fdr.05.fa.prot.longest
 	#python protocol/split-fa.py line7u_vs_i.degenes.fdr.05.fa.prot.longest 100 line7u_vs_i.degenes.fdr.05.fa.prot.longest
-
+	
 	for f in *prot.longest*.fa; do \
 		qsub -v input="$$f",program="blastp" protocol/blast.sh; \
 	done
+
+run-interpro-ensembl:
+
+	mkdir interpro
+	for f in *prot*longest*fa; do \
+		qsub -v input="$$f" protocol/iprscan.sh; \
+	done
+
+run-blast2go:
+
+	qsub -v input="line7u_vs_i.degenes.fdr.05.fa.prot.longest.fa.xml",outdir="line7u_blast2go_outdir" protocol/b2g_job.sh
+	qsub -v input="line6u_vs_i.degenes.fdr.05.fa.prot.longest.fa.xml",outdir="line6u_blast2go_outdir" protocol/b2g_job.sh
 
 ##### De novo assembly (global + local) #####
 
@@ -96,6 +108,9 @@ run-oasesM:
 	cd assembly; qsub ../protocol/velvetgM_job.sh
 	cd assembly; qsub ../protocol/oasesM_job.sh
 
+#De novo assembly only
+######################
+
 clean-transcripts:
 	# -A needed to keep poly-A tail
 	cd assembly/global_merged; ~/seqclean-x86_64/seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
@@ -121,6 +136,59 @@ run-rsem-calc-expression-global-asm:
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" ../../protocol/rsem_calculate_expr_paired.sh
+
+ebseq-line6-global-asm:
+
+	cd assembly/global_merged; \
+	rsem-generate-data-matrix line6u-single-rsem.genes.results \
+		line6u-paired-rsem.genes.results line6i-single-rsem.genes.results \
+		line6i-paired-rsem.genes.results > line6u_vs_i.gene.counts.matrix
+	cd assembly/global_merged; rsem-run-ebseq line6u_vs_i.gene.counts.matrix 2,2 line6u_vs_i.degenes
+	cd assembly/global_merged; rsem-control-fdr line6u_vs_i.degenes 0.05 line6u_vs_i.degenes.fdr.05
+
+ebseq-line7-global-asm:
+
+	cd assembly/global_merged; \
+	rsem-generate-data-matrix line7u-single-rsem.genes.results  \
+		line7u-paired-rsem.genes.results line7i-single-rsem.genes.results  \
+		line7i-paired-rsem.genes.results > line7u_vs_i.gene.counts.matrix
+	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
+	cd assembly/global_merged; rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
+
+prepare-for-blast2go-global-asm:
+
+	#cd assembly/global_merged; \
+	#estscan -t line6u_vs_i.degenes.fdr.05.fa.prot -M ../../protocol/gallus.hm line6u_vs_i.degenes.fdr.05.fa > line6u_vs_i.degenes.fdr.05.fa.nucl
+
+	#cd assembly/global_merged; \
+	#estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M ../../protocol/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
+
+	#cd assembly/global_merged; \
+	#	python ../../protocol/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
+	#cd assembly/global_merged; \
+	#	python ../../protocol/rsem-output-to-fasta.py line6u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line6u_vs_i.degenes.fdr.05.fa
+	#cd assembly/global_merged; \
+	#	python ../../protocol/gene-rep-velvet.py line6u_vs_i.degenes.fdr.05.fa.prot > line6u_vs_i.degenes.fdr.05.fa.prot.longest
+	#cd assembly/global_merged; \
+	#	python ../../protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
+
+	#cd assembly/global_merged; \
+	#	python ../../protocol/split-fa.py line7u_vs_i.degenes.fdr.05.fa.prot.longest 100 line7u_vs_i.degenes.fdr.05.fa.prot.longest
+	#cd assembly/global_merged; \
+	#	python ../../protocol/split-fa.py line6u_vs_i.degenes.fdr.05.fa.prot.longest 100 line6u_vs_i.degenes.fdr.05.fa.prot.longest
+
+	cd assembly/global_merged; \
+	for f in *prot.longest*.fa; do \
+		qsub -v input="$$f",program="blastp" ../../protocol/blast.sh; \
+	done
+
+
+run-interpro-global-asm:
+
+	cd assembly/global_merged/interpro; \
+		for f in ../*prot*longest*fa; do \
+			qsub -v input="$$f" ../../../protocol/iprscan.sh; \
+		done
 
 ##### Tuxedo suit (Tophat + Cufflinks) #####
 
