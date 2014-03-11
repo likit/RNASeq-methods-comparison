@@ -59,9 +59,9 @@ run-blast-ensembl-human:
 	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 
-#########################################################
-##### De novo assembly (global + local) with OasesM #####
-#########################################################
+###############################################
+##### De novo assembly with Velvet+OasesM #####
+###############################################
 
 run-quality-trim-pe:
 
@@ -84,17 +84,17 @@ run-velveth:
 
 run-velvetg:
 
-	cd assembly; qsub ../protocol/velvetg_job.sh
+	cd assembly; qsub ~/rnaseq-comp-protocol/velvetg_job.sh
 
 run-oases:
 
-	cd assembly; qsub ../protocol/oases_job.sh
+	cd assembly; qsub ~/rnaseq-comp-protocol/oases_job.sh
 
 run-oasesM:
 
-	cd assembly; qsub ../protocol/velvethM_job.sh
-	cd assembly; qsub ../protocol/velvetgM_job.sh
-	cd assembly; qsub ../protocol/oasesM_job.sh
+	cd assembly; qsub ~/rnaseq-comp-protocol/velvethM_job.sh
+	cd assembly; qsub ~/rnaseq-comp-protocol/velvetgM_job.sh
+	cd assembly; qsub ~/rnaseq-comp-protocol/oasesM_job.sh
 
 clean-transcripts:
 
@@ -104,8 +104,8 @@ clean-transcripts:
 
 run-rsem-prepare-reference-global-asm:
 
-	cd assembly/global_merged; cat transcripts.fa.clean.nr | python ../../protocol/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
-	cd assembly/global_merged; qsub ../../protocol/rsem_prepare_reference.sh
+	cd assembly/global_merged; cat transcripts.fa.clean.nr | python ~/rnaseq-comp-protocol/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
+	cd assembly/global_merged; qsub ~/rnaseq-comp-protocol/rsem_prepare_reference.sh
 
 run-rsem-calc-expression-global-asm:
 
@@ -123,7 +123,7 @@ run-rsem-calc-expression-global-asm:
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" ~/rnaseq-comp-protocol/rsem_calculate_expr_paired.sh
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" ~/rnaseq-comp-protocol/rsem_calculate_expr_paired.sh
 
-ebseq-line7-global-asm:
+run-ebseq-line7-global-asm:
 
 	cd assembly/global_merged; \
 	rsem-generate-data-matrix line7u-single-rsem.genes.results  \
@@ -166,10 +166,22 @@ run-tophat-pe:
 
 	cd tophat; qsub -v left=../reads/line6u.pe.1,right=../reads/line6u.pe.2,outdir=line6u_pe,index=gal4selected \
 		~/rnaseq-comp-protocol/tophat_pe_job.sh
+	cd tophat; qsub -v left=../reads/line6i.pe.1,right=../reads/line6i.pe.2,outdir=line6i_pe,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_pe_job.sh
+	cd tophat; qsub -v left=../reads/line7u.pe.1,right=../reads/line7u.pe.2,outdir=line7u_pe,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_pe_job.sh
+	cd tophat; qsub -v left=../reads/line7i.pe.1,right=../reads/line7i.pe.2,outdir=line7i_pe,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_pe_job.sh
 
 run-tophat-se:
 
+	cd tophat; qsub -v input=../reads/line6u.se.fq,outdir=line6u_se,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_se_job.sh
+	cd tophat; qsub -v input=../reads/line6i.se.fq,outdir=line6i_se,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_se_job.sh
 	cd tophat; qsub -v input=../reads/line7u.se.fq,outdir=line7u_se,index=gal4selected \
+		~/rnaseq-comp-protocol/tophat_se_job.sh
+	cd tophat; qsub -v input=../reads/line7i.se.fq,outdir=line7i_se,index=gal4selected \
 		~/rnaseq-comp-protocol/tophat_se_job.sh
 
 run-cufflinks:
@@ -250,10 +262,14 @@ run-blast-cufflinks-denovo-human:
 ###### Cufflinks + Ensembl #########
 ####################################
 
+run-cuffmerge-ref:
+
+	cd tophat; cuffmerge -o merged_cuff_ref --ref-gtf ../Gallus_UCSC_ensembl_73.gtf -s gal4selected.fa -p 4 merge_list.txt
+
 run-rsem-cufflinks-ref:
 
 	cd tophat/merged_cuff_ref; cat merged.gtf | python ~/rnaseq-comp-protocol/fix-gtf.py > merged.rsem.gtf 
-	cd tophat/merged_cuff_ref; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-ref
+	cd tophat/merged_cuff_ref; rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-ref
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
 		~/rnaseq-comp-protocol/rsem_calculate_expr_single.sh
