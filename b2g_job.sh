@@ -8,4 +8,5 @@ module load blast2go
 
 cd ${PBS_O_WORKDIR} 
 
-java es.blast2go.prog.B2GAnnotPipe -goslim -annex -in ${input} -ips interpro/ -dat -annot -prop b2gPipe.properties -out ${outdir} -img
+#java es.blast2go.prog.B2GAnnotPipe -goslim -annex -in ${input} -ips interpro/ -dat -annot -prop b2gPipe.properties -out ${outdir} -img
+java es.blast2go.prog.B2GAnnotPipe -goslim -annex -in ${input} -dat -annot -prop b2gPipe.properties -out ${outdir} -img
