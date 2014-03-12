@@ -4,7 +4,7 @@
 #PBS -m abe
 #PBS -A ged-intel11
 #PBS -N Velvetg_global_${PBS_JOBID}
-#PBS -t 21
+#PBS -t 21,23,25,27,29,31
 
 cd ${PBS_O_WORKDIR}
 velvetg global_${PBS_ARRAYID} -read_trkg yes -ins_length 175
