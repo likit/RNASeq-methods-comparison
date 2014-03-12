@@ -2,7 +2,7 @@
 #PBS -l nodes=1:ppn=4,mem=24gb,walltime=24:00:00
 #PBS -M preeyano@msu.edu
 #PBS -m abe
-#PBS -N Tophat_${PBS_JOBID}
+#PBS -N Tophat_single_${PBS_JOBID}
 
 module load bowtie2
 cd ${PBS_O_WORKDIR}
