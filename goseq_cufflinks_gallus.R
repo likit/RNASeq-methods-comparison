@@ -1,8 +1,6 @@
 library(goseq)
 library(org.Gg.eg.db)
 library(KEGG.db)
-#library(ROntoTools)
-#library(graph)
 library(ggplot2)
 library(biomaRt)
 
