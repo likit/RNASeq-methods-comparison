@@ -59,6 +59,10 @@ run-blast-ensembl-human:
 	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 
+run-goseq-ensembl-gallus:
+
+	Rscript ~/rnaseq-comp-protocol/goseq_ensembl_gallus.R
+
 ###############################################
 ##### De novo assembly with Velvet+OasesM #####
 ###############################################
@@ -157,6 +161,10 @@ run-blast-assembly-human:
 	mkdir assembly/global_merged/Human_blast
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+
+run-goseq-assembly-gallus:
+
+	Rcript ~/rnaseq-comp-protocol/goseq_assembly_gallus.R
 
 #############################
 ##### Cufflinks de novo #####
@@ -322,3 +330,7 @@ run-blast-cuffref-human:
 	mkdir tophat/merged_cuff_ref/Human_blast
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+
+run-goseq-cuffref-gallus:
+
+	Rscript ~/rnaseq-comp-protocol/goseq_cufflinks_gallus.R
