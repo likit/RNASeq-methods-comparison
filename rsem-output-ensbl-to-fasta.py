@@ -15,6 +15,7 @@ if len(sys.argv) < 3:
 
 rsemout = open(sys.argv[1])
 fasta_file = sys.argv[2]
+known_isoforms = sys.argv[3]
 degenes = set()
 
 _ = rsemout.readline()
@@ -22,9 +23,15 @@ for line in rsemout:
     geneid = line.split('\t')[0].replace('"', '')
     degenes.add(geneid)
 
+knowns = {}
+
+for line in open(known_isoforms):
+    geneid, transid = line.strip().split('\t')
+    knowns[transid] = geneid
+
 for rec in SeqIO.parse(fasta_file, 'fasta'):
-    geneid = rec.description.split()[3].split(':')[-1]
-    transid = rec.description.split()[4].split(':')[-1]
+    transid = rec.id
+    geneid = knowns[transid]
     rec.id = geneid
     rec.description = transid
     if geneid in degenes:
