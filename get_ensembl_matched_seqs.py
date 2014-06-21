@@ -21,7 +21,7 @@ def parse_tophits(tophit_file):
 
     return genes
 
-def get_seq(ifile):
+def get_seq(fasta_file, tophit_file):
     '''get sequences from a FASTA file
 
     and outputs only sequences belong to genes in
