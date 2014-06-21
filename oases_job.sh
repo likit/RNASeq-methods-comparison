@@ -3,7 +3,7 @@
 #PBS -M preeyano@msu.edu
 #PBS -m abe
 #PBS -N Oases_${PBS_JOBID}
-#PBS -t 21,23
+#PBS -t 21,23,25,27,29,31
 
 cd ${PBS_O_WORKDIR}
 ~/oases_0.2.06/oases global_${PBS_ARRAYID} -ins_length 175
