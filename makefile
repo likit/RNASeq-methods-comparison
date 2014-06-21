@@ -102,10 +102,23 @@ annotate-global-asm:
 	cd assembly/global_merged; \
 		qsub -v db="Gallus_prot",input="genes.fa",program="blastx",output="genes.xml" ~/rnaseq-comp-protocol/blast.sh
 
+rsem-prepare-reference-global-asm-ensembl-matched:
+
+	cd assembly/global_merged; \
+		python $(protocol)/get_ensembl_matched_seqs_assembly.py transcripts.fa.clean.nr \
+		genes.tophits.txt > transcripts.ensembl-matched.fa
+
+	cd assembly/global_merged; cat transcripts.ensembl-matched.fa | python $(protocol)/prepare-transcripts.py \
+		transcripts.ensembl-matched.rsem.fa knownIsoforms.ensembl-matched.txt
+
+	cd assembly/global_merged; qsub -v "input=transcripts.ensembl-matched.rsem.fa,knownIsoforms=knownIsoforms.ensembl-matched.txt, \
+		output=transcripts.ensembl-matched-rsem" $(protocol)/rsem_prepare_reference.sh
+
 rsem-prepare-reference-global-asm:
 
 	cd assembly/global_merged; cat transcripts.fa.clean.nr | python $(protocol)/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
-	cd assembly/global_merged; qsub $(protocol)/rsem_prepare_reference.sh
+	cd assembly/global_merged; qsub -v "input=transcripts.fa.clean.nr.rsem,knownIsoforms=knownIsoforms.txt, \
+		output=transcripts-rsem" $(protocol)/rsem_prepare_reference.sh
 
 rsem-calc-expression-global-asm:
 
