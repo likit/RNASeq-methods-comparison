@@ -29,7 +29,7 @@ def get_seq(fasta_file, tophit_file):
     '''
 
     genes = parse_tophit(tophit_file)
-    for rec in SeqIO.parse(fasta_file):
+    for rec in SeqIO.parse(fasta_file, 'fasta'):
         geneid = '_'.join(rec.id.split('_')[:2])
         if geneid in genes:
             SeqIO.write(rec, sys.stdout, 'fasta')
