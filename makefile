@@ -1,6 +1,4 @@
-protocol_path = ~/projects/rnaseq-compare/protocol
-
-###############################################
+##############################################
 ############# Ensembl annotations #############
 ###############################################
 
@@ -9,7 +7,7 @@ rsem-prepare-ensembl-reference:
 	python ~/rnaseq-comp-protocol/gtf_to_known_isoforms.py \
 		~/rnaseq-comp-protocol/Gallus_gallus.Galgal4.73.removed.gtf > Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt
 
-	rsem-prepare-reference --gtf $(protocol_path)/Gallus_gallus.Galgal4.73.removed.gtf \
+	rsem-prepare-reference --gtf $(protocol)/Gallus_gallus.Galgal4.73.removed.gtf \
 		--transcript-to-gene-map Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt \
 		galGal4-removed.fa ensembl_genes
 
@@ -41,18 +39,18 @@ get-DE-sequences-ensembl:
 
 run-blast-ensembl-gallus:
 
-	python $(protocol_path)/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
+	python $(protocol)/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
-	qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)l/blast.sh
+	qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)l/blast.sh
 
 run-blast-ensembl-human:
 
 	mkdir Human_blast
-	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
+	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
 run-goseq-ensembl-gallus:
 
-	Rscript $(protocol_path)/goseq_ensembl_gallus.R
+	Rscript $(protocol)/goseq_ensembl_gallus.R
 
 ###############################################
 ##### De novo assembly with Velvet+OasesM #####
@@ -75,28 +73,28 @@ interleave-reads:
 
 run-velveth:
 
-	cd assembly; qsub -v pe_input="paired.fastq",se_input="single.fastq" $(protocol_path)/velveth_job.sh
+	cd assembly; qsub -v pe_input="paired.fastq",se_input="single.fastq" $(protocol)/velveth_job.sh
 
 run-velvetg:
 
-	cd assembly; qsub $(protocol_path)/velvetg_job.sh
+	cd assembly; qsub $(protocol)/velvetg_job.sh
 
 run-oases:
 
-	cd assembly; qsub $(protocol_path)/oases_job.sh
+	cd assembly; qsub $(protocol)/oases_job.sh
 
 run-oasesM:
 
-	cd assembly; qsub $(protocol_path)/velvethM_job.sh
-	cd assembly; qsub $(protocol_path)/velvetgM_job.sh
-	cd assembly; qsub $(protocol_path)/oasesM_job.sh
+	cd assembly; qsub $(protocol)/velvethM_job.sh
+	cd assembly; qsub $(protocol)/velvetgM_job.sh
+	cd assembly; qsub $(protocol)/oasesM_job.sh
 
 clean-transcripts:
 
 	# -A needed to keep poly-A tail
 	cd assembly/global_merged; ~/seqclean-x86_64/seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
 	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" \
-		$(protocol_path)/cdhit_job.sh
+		$(protocol)/cdhit_job.sh
 
 annotate-global-asm:
 
@@ -106,24 +104,24 @@ annotate-global-asm:
 
 rsem-prepare-reference-global-asm:
 
-	cd assembly/global_merged; cat transcripts.fa.clean.nr | python $(protocol_path)/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
-	cd assembly/global_merged; qsub $(protocol_path)/rsem_prepare_reference.sh
+	cd assembly/global_merged; cat transcripts.fa.clean.nr | python $(protocol)/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
+	cd assembly/global_merged; qsub $(protocol)/rsem_prepare_reference.sh
 
 rsem-calc-expression-global-asm:
 
 	cd assembly/global_merged; qsub -v input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem",index="transcripts-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd assembly/global_merged; qsub -v input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem",index="transcripts-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd assembly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem",index="transcripts-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd assembly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem",index="transcripts-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem",index="transcripts-rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem",index="transcripts-rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 run-ebseq-line7-global-asm:
 
@@ -137,7 +135,7 @@ run-ebseq-line7-global-asm:
 get-DE-sequences-assembly:
 
 	cd assembly/global_merged; \
-		python $(protocol_path)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
+		python $(protocol)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
 
 run-blast-assembly-gallus:
 
@@ -159,7 +157,7 @@ run-blast-assembly-human:
 
 run-goseq-assembly-gallus:
 
-	Rcript $(protocol_path)/goseq_assembly_gallus.R
+	Rcript $(protocol)/goseq_assembly_gallus.R
 
 #############################
 ##### Cufflinks de novo #####
@@ -168,29 +166,29 @@ run-goseq-assembly-gallus:
 run-tophat-pe:
 
 	cd tophat; qsub -v left=../reads/line6u.pe.1,right=../reads/line6u.pe.2,outdir=line6u_pe,index=gal4selected \
-		$(protocol_path)/tophat_pe_job.sh
+		$(protocol)/tophat_pe_job.sh
 	cd tophat; qsub -v left=../reads/line6i.pe.1,right=../reads/line6i.pe.2,outdir=line6i_pe,index=gal4selected \
-		$(protocol_path)/tophat_pe_job.sh
+		$(protocol)/tophat_pe_job.sh
 	cd tophat; qsub -v left=../reads/line7u.pe.1,right=../reads/line7u.pe.2,outdir=line7u_pe,index=gal4selected \
-		$(protocol_path)/tophat_pe_job.sh
+		$(protocol)/tophat_pe_job.sh
 	cd tophat; qsub -v left=../reads/line7i.pe.1,right=../reads/line7i.pe.2,outdir=line7i_pe,index=gal4selected \
-		$(protocol_path)/tophat_pe_job.sh
+		$(protocol)/tophat_pe_job.sh
 
 run-tophat-se:
 
 	cd tophat; qsub -v input=../reads/line6u.se.fq,outdir=line6u_se,index=gal4selected \
-		$(protocol_path)/tophat_se_job.sh
+		$(protocol)/tophat_se_job.sh
 	cd tophat; qsub -v input=../reads/line6i.se.fq,outdir=line6i_se,index=gal4selected \
-		$(protocol_path)/tophat_se_job.sh
+		$(protocol)/tophat_se_job.sh
 	cd tophat; qsub -v input=../reads/line7u.se.fq,outdir=line7u_se,index=gal4selected \
-		$(protocol_path)/tophat_se_job.sh
+		$(protocol)/tophat_se_job.sh
 	cd tophat; qsub -v input=../reads/line7i.se.fq,outdir=line7i_se,index=gal4selected \
-		$(protocol_path)/tophat_se_job.sh
+		$(protocol)/tophat_se_job.sh
 
 run-cufflinks:
 
 	cd tophat; for d in line??_?e; do qsub -v outdir="$$d",input="$$d/accepted_hits.bam" \
-		$(protocol_path)/cufflinks_job.sh; echo $$d; done
+		$(protocol)/cufflinks_job.sh; echo $$d; done
 
 run-cuffmerge:
 
@@ -198,33 +196,33 @@ run-cuffmerge:
 
 run-rsem-cufflinks-denovo:
 
-	cd tophat/merged_cuff_denovo; cat merged.gtf | python $(protocol_path)col/fix-gtf.py > merged.rsem.gtf 
+	cd tophat/merged_cuff_denovo; cat merged.gtf | python $(protocol)col/fix-gtf.py > merged.rsem.gtf 
 	cd tophat/merged_cuff_denovo; ~/rsem-1.2.7/rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-denovo
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_denovo; \
 		qsub -v index="merged-denovo",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 
 run-ebseq-line7-cufflinks-denovo:
 
@@ -238,28 +236,28 @@ run-ebseq-line7-cufflinks-denovo:
 get-DE-sequences-cufflinks-denovo:
 
 	cd tophat/merged_cuff_denovo; \
-		python $(protocol_path)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 merged-denovo.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
+		python $(protocol)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 merged-denovo.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
 
 translate-DE-sequences-cufflinks-denovo:
 
 	cd tophat/merged_cuff_denovo; \
-	estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M $(protocol_path)/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
+	estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M $(protocol)/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
 
 run-blast-cufflinks-denovo-gallus:
 
 	cd tophat/merged_cuff_denovo; \
-		python $(protocol_path)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
-		python $(protocol_path)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
+		python $(protocol)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
+		python $(protocol)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
 	cd tophat/merged_cuff_denovo; \
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol_path)/blast.sh
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol)/blast.sh
+		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
 run-blast-cufflinks-denovo-human:
 
 	mkdir tophat/merged_cuff_denovo/Human_blast
-		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol_path)/blast.sh
-		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol)/blast.sh
+		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
 ####################################
 ###### Cufflinks + Ensembl #########
@@ -271,34 +269,34 @@ run-cuffmerge-ref:
 
 run-rsem-cufflinks-ref:
 
-	cd tophat/merged_cuff_ref; cat merged.gtf | python $(protocol_path)/fix-gtf.py > merged.rsem.gtf 
+	cd tophat/merged_cuff_ref; cat merged.gtf | python $(protocol)/fix-gtf.py > merged.rsem.gtf 
 	cd tophat/merged_cuff_ref; rsem-prepare-reference --gtf merged.rsem.gtf ../../galGal4-removed.fa merged-ref
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line6i.se.fq",sample_name="line6i-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 
 	cd tophat/merged_cuff_ref; \
 
 		qsub -v index="merged-ref",input_read1="../../reads/line6u.pe.1",input_read2="../../reads/line6u.pe.2",sample_name="line6u-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line6i.pe.1",input_read2="../../reads/line6i.pe.2",sample_name="line6i-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged-ref",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem" \
-		$(protocol_path)/rsem_calculate_expr_paired.sh
+		$(protocol)/rsem_calculate_expr_paired.sh
 
 run-ebseq-line7-cufflinks-ref:
 
@@ -328,13 +326,13 @@ run-blast-cuffref-human:
 
 annotate-cuffref:
 
-	cd tophat/merged_cuff_ref; python $(protocol_path)/gene-rep-cufflinks.py merged-ref.transcripts.fa > merged-ref.genes.fa
+	cd tophat/merged_cuff_ref; python $(protocol)/gene-rep-cufflinks.py merged-ref.transcripts.fa > merged-ref.genes.fa
 	cd tophat/merged_cuff_ref; \
-		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" $(protocol_path)/blast.sh
+		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" $(protocol)/blast.sh
 
 run-goseq-cuffref-gallus:
 
-	Rscript $(protocol_path)/goseq_cufflinks_gallus.R
+	Rscript $(protocol)/goseq_cufflinks_gallus.R
 
 ########################################
 ######     Combined models    ##########
@@ -343,28 +341,28 @@ run-goseq-cuffref-gallus:
 local-assembly: run-tophat-pe run-tophat-se extract-reads
 run-tophat-pe:
 
-	cd tophat; qsub -v outdir="line6u_pe",index="gal4selected",left="../reads/line6u.1_trim1.fastq",right="../reads/line6u.1_trim2.fastq",unpaired="../reads/line6u.1_trim_unpaired.fastq" $(protocol_path)/tophat_pe_job.sh 
-	cd tophat; qsub -v outdir="line6i_pe",index="gal4selected",left="../reads/line6i.1_trim1.fastq",right="../reads/line6i.1_trim2.fastq",unpaired="../reads/line6i.1_trim_unpaired.fastq" $(protocol_path)/tophat_pe_job.sh 
-	cd tophat; qsub -v outdir="line7u_pe",index="gal4selected",left="../reads/line7u.1_trim1.fastq",right="../reads/line7u.1_trim2.fastq",unpaired="../reads/line7u.1_trim_unpaired.fastq" $(protocol_path)/tophat_pe_job.sh 
-	cd tophat; qsub -v outdir="line7i_pe",index="gal4selected",left="../reads/line7i.1_trim1.fastq",right="../reads/line7i.1_trim2.fastq",unpaired="../reads/line7i.1_trim_unpaired.fastq" $(protocol_path)/tophat_pe_job.sh 
+	cd tophat; qsub -v outdir="line6u_pe",index="gal4selected",left="../reads/line6u.1_trim1.fastq",right="../reads/line6u.1_trim2.fastq",unpaired="../reads/line6u.1_trim_unpaired.fastq" $(protocol)/tophat_pe_job.sh 
+	cd tophat; qsub -v outdir="line6i_pe",index="gal4selected",left="../reads/line6i.1_trim1.fastq",right="../reads/line6i.1_trim2.fastq",unpaired="../reads/line6i.1_trim_unpaired.fastq" $(protocol)/tophat_pe_job.sh 
+	cd tophat; qsub -v outdir="line7u_pe",index="gal4selected",left="../reads/line7u.1_trim1.fastq",right="../reads/line7u.1_trim2.fastq",unpaired="../reads/line7u.1_trim_unpaired.fastq" $(protocol)/tophat_pe_job.sh 
+	cd tophat; qsub -v outdir="line7i_pe",index="gal4selected",left="../reads/line7i.1_trim1.fastq",right="../reads/line7i.1_trim2.fastq",unpaired="../reads/line7i.1_trim_unpaired.fastq" $(protocol)/tophat_pe_job.sh 
 
 run-tophat-se:
 
-	cd tophat; qsub -v outdir="line6u_se",index="gal4selected",input="../reads/line6u.fq_trim.fastq" $(protocol_path)/tophat_se_job.sh
-	cd tophat; qsub -v outdir="line6i_se",index="gal4selected",input="../reads/line6i.fq_trim.fastq" $(protocol_path)/tophat_se_job.sh
-	cd tophat; qsub -v outdir="line7u_se",index="gal4selected",input="../reads/line7u.fq_trim.fastq" $(protocol_path)/tophat_se_job.sh
-	cd tophat; qsub -v outdir="line7i_se",index="gal4selected",input="../reads/line7i.fq_trim.fastq" $(protocol_path)/tophat_se_job.sh
+	cd tophat; qsub -v outdir="line6u_se",index="gal4selected",input="../reads/line6u.fq_trim.fastq" $(protocol)/tophat_se_job.sh
+	cd tophat; qsub -v outdir="line6i_se",index="gal4selected",input="../reads/line6i.fq_trim.fastq" $(protocol)/tophat_se_job.sh
+	cd tophat; qsub -v outdir="line7u_se",index="gal4selected",input="../reads/line7u.fq_trim.fastq" $(protocol)/tophat_se_job.sh
+	cd tophat; qsub -v outdir="line7i_se",index="gal4selected",input="../reads/line7i.fq_trim.fastq" $(protocol)/tophat_se_job.sh
 
 extract-reads:
 
 	cd tophat; for dir in line??_?e; \
-		do $(protocol_path)/extract_reads.sh $$dir/accepted_hits.bam $(protocol_path)/chromosomes.txt; \
+		do $(protocol)/extract_reads.sh $$dir/accepted_hits.bam $(protocol)/chromosomes.txt; \
 	done
 
 merge-bams:
 
 	cd tophat; \
-	for chr in $(cat $(protocol_path)/chromosomes.txt); do printf "merging %s..\n" "$chr";  \
+	for chr in $(cat $(protocol)/chromosomes.txt); do printf "merging %s..\n" "$chr";  \
 		samtools merge -n merged/"$chr".bam \
 		line6u_pe/"$chr".bam line6u_se/"$chr".bam \
 		line6i_pe/"$chr".bam line6i_se/"$chr".bam \
@@ -376,21 +374,21 @@ run-velveth-local:
 
 	cd tophat/merged; \
 	for f in *.bam; \
-		do qsub -v outdir=$$(basename "$$f" .bam),input="$$f" $(protocol_path)/velveth_local_job.sh; \
+		do qsub -v outdir=$$(basename "$$f" .bam),input="$$f" $(protocol)/velveth_local_job.sh; \
 	done
 
 run-velvetg-local:
 
 	cd tophat/merged; \
 	for d in chr*_*; \
-		do qsub -v indir="$$d" $(protocol_path)/velvetg_local_job.sh; \
+		do qsub -v indir="$$d" $(protocol)/velvetg_local_job.sh; \
 	done
 
 run-oases-local:
 
 	cd tophat/merged; \
 	for d in chr*_*; \
-		do qsub -v indir="$$d" $(protocol_path)/oases_local_job.sh; \
+		do qsub -v indir="$$d" $(protocol)/oases_local_job.sh; \
 	done
 
 combine-transcripts:
@@ -413,15 +411,15 @@ clean-transcripts:
 remove-redundant-seq:
 
 	cat tophat/merged/local_merged.fa.clean assembly/global_merged.fa.clean >> all.fa.clean
-	qsub -v input="all.fa.clean",output="all.fa.clean.nr",c="1.0" $(protocol_path)/cdhit_job.sh
+	qsub -v input="all.fa.clean",output="all.fa.clean.nr",c="1.0" $(protocol)/cdhit_job.sh
 
-	cd assembly; qsub -v input="global_merged.fa.clean",output="global_merged.fa.clean.nr",c="1.0" $(protocol_path)/cdhit_job.sh
+	cd assembly; qsub -v input="global_merged.fa.clean",output="global_merged.fa.clean.nr",c="1.0" $(protocol)/cdhit_job.sh
 
 align-transcripts:
 
-	python $(protocol_path)/split-fa.py all.fa.clean.nr
+	python $(protocol)/split-fa.py all.fa.clean.nr
 	for f in subsets*.fa; do \
-		qsub -v input="$$f" $(protocol_path)/blat_job.sh; \
+		qsub -v input="$$f" $(protocol)/blat_job.sh; \
 	done
 	cat subsets*.fa.psl > all.fa.clean.nr.psl
 	sort -k 10 all.fa.clean.nr.psl > all.fa.clean.nr.psl.sorted
@@ -432,26 +430,26 @@ align-transcripts:
 # run-cufflinks:
 # 
 # 	cd tophat; for d in line??_?e; do qsub -v outdir="$$d",input="$$d/accepted_hits.bam" \
-# 		$(protocol_path)/cufflinks_job.sh; echo $$d; done
+# 		$(protocol)/cufflinks_job.sh; echo $$d; done
 
 run-cuffmerge-ref:
 
-	cd tophat; cuffmerge -g ../Gallus_UCSC_ensembl_73.gtf.removed -o merged_cuff_ref -s gal4selected.fa -p 4 $(protocol_path)/merge_list.txt
+	cd tophat; cuffmerge -g ../Gallus_UCSC_ensembl_73.gtf.removed -o merged_cuff_ref -s gal4selected.fa -p 4 $(protocol)/merge_list.txt
 
 # build-gene-models:
 # 
-# 	qsub -v input="all.fa.clean.nr.psl.best",ref="tophat/gal4selected.fa" $(protocol_path)/run_gimme.sh
+# 	qsub -v input="all.fa.clean.nr.psl.best",ref="tophat/gal4selected.fa" $(protocol)/run_gimme.sh
 
 # build-gene-models-with-cufflinks:
 # 
 # 	python ~/gimme/src/utils/gff2bed.py tophat/merged_cuff_denovo/transcripts.gtf > tophat/merged_cuff_denovo/transcripts.bed
-# 	qsub -v input1="all.fa.clean.nr.psl.best",input2="tophat/merged_cuff_denovo/transcripts.bed",ref="tophat/gal4selected.fa" $(protocol_path)/run_gimme2.sh
+# 	qsub -v input1="all.fa.clean.nr.psl.best",input2="tophat/merged_cuff_denovo/transcripts.bed",ref="tophat/gal4selected.fa" $(protocol)/run_gimme2.sh
 
 build-gene-models-with-cufflinks-ref:
 
 	python ~/gimme/src/utils/gff2bed.py tophat/merged_cuff_ref/merged.gtf > tophat/merged_cuff_ref/merged.bed
 	cd combined; \
-		qsub -v output="asm_cuff_ref_models.bed",input1="../all.fa.clean.nr.psl.best",input2="../tophat/merged_cuff_ref/merged.bed",ref="../tophat/gal4selected.fa" $(protocol_path)/run_gimme2.sh
+		qsub -v output="asm_cuff_ref_models.bed",input1="../all.fa.clean.nr.psl.best",input2="../tophat/merged_cuff_ref/merged.bed",ref="../tophat/gal4selected.fa" $(protocol)/run_gimme2.sh
 
 models-to-transcripts:
 
@@ -460,25 +458,25 @@ models-to-transcripts:
 rsem-combined-models-ref:
 
 	cd combined; \
-		cat asm_cuff_ref_models.bed.fa | python $(protocol_path)/fasta-to-gene-list.py > asm_cuff_ref_models.txt
+		cat asm_cuff_ref_models.bed.fa | python $(protocol)/fasta-to-gene-list.py > asm_cuff_ref_models.txt
 	cd combined; \
-		qsub -v list="asm_cuff_ref_models.txt",input="asm_cuff_ref_models.bed.fa",sample="asm_cuff_ref_models_rsem" $(protocol_path)/rsem_prepare_reference.sh
+		qsub -v list="asm_cuff_ref_models.txt",input="asm_cuff_ref_models.bed.fa",sample="asm_cuff_ref_models_rsem" $(protocol)/rsem_prepare_reference.sh
 
 rsem-calc-gimme-models-ref:
 
 	cd combined; qsub -v input_read="../reads/line6u.se.fq",sample_name="line6u-single-rsem-cuffref",index="asm_cuff_ref_models_rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd combined; qsub -v input_read="../reads/line6i.se.fq",sample_name="line6i-single-rsem-cuffref",index="asm_cuff_ref_models_rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd combined; qsub -v input_read="../reads/line7u.se.fq",sample_name="line7u-single-rsem-cuffref",index="asm_cuff_ref_models_rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 	cd combined; qsub -v input_read="../reads/line7i.se.fq",sample_name="line7i-single-rsem-cuffref",index="asm_cuff_ref_models_rsem" \
-		$(protocol_path)/rsem_calculate_expr_single.sh
+		$(protocol)/rsem_calculate_expr_single.sh
 
-	cd combined; qsub -v input_read1="../reads/line6u.pe.1",input_read2="../reads/line6u.pe.2",sample_name="line6u-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd combined; qsub -v input_read1="../reads/line6i.pe.1",input_read2="../reads/line6i.pe.2",sample_name="line6i-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd combined; qsub -v input_read1="../reads/line7u.pe.1",input_read2="../reads/line7u.pe.2",sample_name="line7u-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
-	cd combined; qsub -v input_read1="../reads/line7i.pe.1",input_read2="../reads/line7i.pe.2",sample_name="line7i-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol_path)/rsem_calculate_expr_paired.sh
+	cd combined; qsub -v input_read1="../reads/line6u.pe.1",input_read2="../reads/line6u.pe.2",sample_name="line6u-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd combined; qsub -v input_read1="../reads/line6i.pe.1",input_read2="../reads/line6i.pe.2",sample_name="line6i-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd combined; qsub -v input_read1="../reads/line7u.pe.1",input_read2="../reads/line7u.pe.2",sample_name="line7u-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd combined; qsub -v input_read1="../reads/line7i.pe.1",input_read2="../reads/line7i.pe.2",sample_name="line7i-paired-rsem-cuffref",index="asm_cuff_ref_models_rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 ebseq-line7-models-ref:
 
@@ -491,60 +489,60 @@ ebseq-line7-models-ref:
 get-DE-sequences-combined:
 
 	cd combined; \
-		python $(protocol_path)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
+		python $(protocol)/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
 
 translate-DE-sequences-combined:
 
 	cd combined; \
-		estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M $(protocol_path)/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
+		estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M $(protocol)/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
 
 run-blast-combined-gallus:
 
-	cd combined; python $(protocol_path)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
-	cd combined; python $(protocol_path)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
+	cd combined; python $(protocol)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
+	cd combined; python $(protocol)/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
 	cd combined; \
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol)/blast.sh
 	cd combined; \
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
 run-blast-combined-human:
 
 	mkdir assembly/global_merged/Human_blast
 	cd combined; \
-		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol)/blast.sh
 	cd combined; \
-		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
+		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
 run-goseq-ensembl-gallus:
 
 	cd gallus/ensembl; \
-	Rscript $(protocol_path)/goseq_ensembly_gallus.R
+	Rscript $(protocol)/goseq_ensembly_gallus.R
 
 run-goseq-cufflinks-gallus:
 
 	cd gallus/cufflinks; \
-	Rscript $(protocol_path)/goseq_cufflinks_gallus.R
+	Rscript $(protocol)/goseq_cufflinks_gallus.R
 
 run-goseq-assembly-gallus:
 
 	cd gallus/assembly; \
-	Rscript $(protocol_path)/goseq_assembly_gallus.R
+	Rscript $(protocol)/goseq_assembly_gallus.R
 
 run-goseq-combined-gallus:
 
 	cd gallus/combined; \
-	Rscript $(protocol_path)/goseq_combined_gallus.R
+	Rscript $(protocol)/goseq_combined_gallus.R
 
 create-combined-annotation:
 
 	cd human_gallus; \
-	Rscript $(protocol_path)/combine_kegg_annots.R; \
-	python $(protocol_path)/create_kegg_annots.py line7u_vs_i.degenes.cuffref.tophits.nucl.gg.annots.txt \
+	Rscript $(protocol)/combine_kegg_annots.R; \
+	python $(protocol)/create_kegg_annots.py line7u_vs_i.degenes.cuffref.tophits.nucl.gg.annots.txt \
 		line7u_vs_i.degenes.cuffref.tophits.nucl.gg.pathways.txt line7u_vs_i.degenes.cuffref.tophits.nucl.hs.annots.txt \
 		line7u_vs_i.degenes.cuffref.tophits.nucl.hs.pathways.txt ensembl_gallus_kegg_pathways.txt > \
 		line7u_vs_i.degenes.cuffref.tophits.nucl.hs.gg.pathways.txt
 
 run-goseq-combined-custom-gallus:
 
-	Rscript $(protocol_path)/goseq_combined_custom_pathways.R
+	Rscript $(protocol)/goseq_combined_custom_pathways.R
