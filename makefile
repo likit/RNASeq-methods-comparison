@@ -1,33 +1,29 @@
+protocol_path = ~/rnaseq-comp-protocol
+
 ###############################################
 ############# Ensembl annotations #############
 ###############################################
 
-preprocess-ucsc-gene-models:
+rsem-prepare-ensembl-reference:
 
-	cat Gallus_UCSC_ensembl_73.gtf | cut -f 1 | sort | uniq -c | \
-		grep -v -e random -e chrUn > Gallus_UCSC_ensembl_73.gtf.removed
-	cat Gallus_UCSC_ensembl_73.txt | cut -f 1 | sort | uniq -c | \
-		grep -v -e random -e chrUn > Gallus_UCSC_ensembl_73.txt.removed
-	cat Gallus_UCSC_ensembl_73.txt.removed | cut -f 2,13 | \
-		grep -v name | awk -v OFS="\t" '{print $2,$1}' > Gallus_UCSC_ensembl_73.knownIsoforms.txt
+	python ~/rnaseq-comp-protocol/gtf_to_known_isoforms.py \
+		~/rnaseq-comp-protocol/Gallus_gallus.Galgal4.73.removed.gtf > Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt
 
-run-rsem-prepare-reference:
+	rsem-prepare-reference --gtf $(protocol_path)/Gallus_gallus.Galgal4.73.removed.gtf \
+		--transcript-to-gene-map Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt \
+		galGal4-removed.fa ensembl_genes
 
-	rsem-prepare-reference --gtf Gallus_UCSC_ensembl_73.gtf.removed \
-		--transcript-to-gene-map Gallus_UCSC_ensembl_73.knownIsoforms.txt \
-		galGal4-removed.fa galGal4-removed
+rsem-calc-expression:
 
-run-rsem-calc-expression:
+	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem",index="ensembl_genes" \
+		~/rnaseq-comp-protocol/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem",index="ensembl_genes" \
+		~/rnaseq-comp-protocol/rsem_calculate_expr_single.sh
 
-	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem",index="galGal4-removed" \
-		protocol/rsem_calculate_expr_single.sh
-	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem",index="galGal4-removed" \
-		protocol/rsem_calculate_expr_single.sh
-
-	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="galGal4-removed" \
-		protocol/rsem_calculate_expr_paired.sh
-	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="galGal4-removed" \
-		protocol/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="ensembl_genes" \
+		~/rnaseq-comp-protocol/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="ensembl_genes" \
+		~/rnaseq-comp-protocol/rsem_calculate_expr_paired.sh
 
 run-ebseq-line7:
 
@@ -39,25 +35,20 @@ run-ebseq-line7:
 
 get-DE-sequences-ensembl:
 
-	python ~/rnaseq-comp-protocol/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 merged-ref.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
-
-translate-DE-sequences-ensembl:
-
-	estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M ~/rnaseq-comp-protocol/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
+	python ~/rnaseq-comp-protocol/rsem-output-ensbl-to-fasta.py line7u_vs_i.degenes.fdr.05 \
+		ensembl_genes.transcripts.fa Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt \
+		> line7u_vs_i.degenes.fdr.05.fa
 
 run-blast-ensembl-gallus:
 
-	python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
-	python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
+	python $(protocol_path)/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
-	qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
-	qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+	qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)l/blast.sh
 
 run-blast-ensembl-human:
 
 	mkdir Human_blast
-	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
-	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+	qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol_path)/blast.sh
 
 ###############################################
 ##### De novo assembly with Velvet+OasesM #####
@@ -100,14 +91,21 @@ clean-transcripts:
 
 	# -A needed to keep poly-A tail
 	cd assembly/global_merged; ~/seqclean-x86_64/seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
-	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" protocol/cdhit_job.sh
+	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" \
+		$(protocol_path)/cdhit_job.sh
 
-run-rsem-prepare-reference-global-asm:
+annotate-global-asm:
 
-	cd assembly/global_merged; cat transcripts.fa.clean.nr | python ~/rnaseq-comp-protocol/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
-	cd assembly/global_merged; qsub ~/rnaseq-comp-protocol/rsem_prepare_reference.sh
+	# cd assembly/global_merged; python ~/rnaseq-comp-protocol/gene-rep-velvet.py transcripts.fa.clean.nr > genes.fa
+	cd assembly/global_merged; \
+		qsub -v db="Gallus_prot",input="genes.fa",program="blastx",output="genes.xml" ~/rnaseq-comp-protocol/blast.sh
 
-run-rsem-calc-expression-global-asm:
+rsem-prepare-reference-global-asm:
+
+	cd assembly/global_merged; cat transcripts.fa.clean.nr | python $(protocol_path)/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
+	cd assembly/global_merged; qsub $(protocol_path)/rsem_prepare_reference.sh
+
+rsem-calc-expression-global-asm:
 
 	cd assembly/global_merged; qsub -v input_read="../../reads/line6u.se.fq",sample_name="line6u-single-rsem",index="transcripts-rsem" \
 		~/rnaseq-comp-protocol/rsem_calculate_expr_single.sh
@@ -137,25 +135,22 @@ get-DE-sequences-assembly:
 	cd assembly/global_merged; \
 		python ~/rnaseq-comp-protocol/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 transcripts-rsem.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
 
-translate-DE-sequences-assembly:
-
-	cd assembly/global_merged; \
-	estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M ~/rnaseq-comp-protocol/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
-
 run-blast-assembly-gallus:
 
 	cd assembly/global_merged; \
-		python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
 		python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
 	cd assembly/global_merged; \
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 
 run-blast-assembly-human:
 
 	mkdir assembly/global_merged/Human_blast
+
+	cd assembly/global_merged; \
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+
+	cd assembly/global_merged; \
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 
 #############################
@@ -301,24 +296,22 @@ get-DE-sequences-cuffref:
 
 	cd tophat/merged_cuff_ref; \
 		python ~/rnaseq-comp-protocol/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 merged-ref.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
-
-translate-DE-sequences-cuffref:
-
-	cd tophat/merged_cuff_ref; \
-	estscan -t line7u_vs_i.degenes.fdr.05.fa.prot -M ~/rnaseq-comp-protocol/gallus.hm line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.nucl
-
 run-blast-cuffref-gallus:
 
 	cd tophat/merged_cuff_ref; \
-		python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa.prot > line7u_vs_i.degenes.fdr.05.fa.prot.longest
 		python ~/rnaseq-comp-protocol/gene-rep-velvet.py line7u_vs_i.degenes.fdr.05.fa > line7u_vs_i.degenes.fdr.05.fa.longest
 
 	cd tophat/merged_cuff_ref; \
-		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 		qsub -v db="Gallus_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 
 run-blast-cuffref-human:
 
 	mkdir tophat/merged_cuff_ref/Human_blast
-		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" ~/rnaseq-comp-protocol/blast.sh
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" ~/rnaseq-comp-protocol/blast.sh
+
+annotate-cuffref:
+
+	cd tophat/merged_cuff_ref; python $(protocol_path)/gene-rep-cufflinks.py merged-ref.transcripts.fa > merged-ref.genes.fa
+	cd tophat/merged_cuff_ref; \
+		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" $(protocol_path)/blast.sh
+
