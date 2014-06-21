@@ -7,7 +7,7 @@ outputs all sequences belong to the gene.
 import sys
 from Bio import SeqIO
 
-def parse_tophits(tophit_file):
+def parse_tophit(tophit_file):
     '''parses gene name from a tophit file.'''
 
     genes = set()
