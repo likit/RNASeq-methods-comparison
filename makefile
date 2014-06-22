@@ -111,8 +111,16 @@ rsem-prepare-reference-global-asm-ensembl-matched:
 	cd assembly/global_merged; cat transcripts.ensembl-matched.fa | python $(protocol)/prepare-transcripts.py \
 		transcripts.ensembl-matched.rsem.fa knownIsoforms.ensembl-matched.txt
 
-	cd assembly/global_merged; qsub -v "input=transcripts.ensembl-matched.rsem.fa,knownIsoforms=knownIsoforms.ensembl-matched.txt, \
+	cd assembly/global_merged; qsub -v "input=transcripts.ensembl-matched.rsem.fa,knownIsoforms=knownIsoforms.ensembl-matched.txt,\
 		output=transcripts.ensembl-matched-rsem" $(protocol)/rsem_prepare_reference.sh
+
+rsem-calc-expression-global-asm-ensembl-matched:
+
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
+
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 rsem-prepare-reference-global-asm:
 
@@ -343,6 +351,33 @@ annotate-cuffref:
 	cd tophat/merged_cuff_ref; \
 		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" $(protocol)/blast.sh
 
+rsem-prepare-reference-cuffref-ensembl-matched:
+
+	#cd tophat/merged_cuff_ref; \
+	#	python $(protocol)/get_top_hits.py merged-ref.genes.xml > merged-ref.tophits.txt
+	#cd tophat/merged_cuff_ref; \
+	#	python $(protocol)/get_ensembl_matched_seqs_cufflinks.py merged-ref.genes.fa \
+	#	merged-ref.tophits.txt > merged.ensembl-matched.fa
+
+	#cd tophat/merged_cuff_ref; \
+	#	cat merged.rsem.gtf | python $(protocol)/cufflinks-to-known-isoforms.py > knownIsoforms.txt
+
+	cd tophat/merged_cuff_ref; qsub -v "input=merged.ensembl-matched.fa,knownIsoforms=knownIsoforms.txt,output=merged.ensembl-matched-rsem" $(protocol)/rsem_prepare_reference.sh
+
+run-rsem-cufflinks-ref-ensembl-matched:
+
+	cd tophat/merged_cuff_ref; \
+		qsub -v index="merged.ensembl-matched-rsem",input_read="../../reads/line7u.se.fq",sample_name="line7u-single-ensembl-matched-rsem" \
+		$(protocol)/rsem_calculate_expr_single.sh
+	cd tophat/merged_cuff_ref; \
+		qsub -v index="merged.ensembl-matched-rsem",input_read="../../reads/line7i.se.fq",sample_name="line7i-single-ensembl-matched-rsem" \
+		$(protocol)/rsem_calculate_expr_single.sh
+
+	cd tophat/merged_cuff_ref; \
+		qsub -v index="merged.ensembl-matched-rsem",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd tophat/merged_cuff_ref; \
+		qsub -v index="merged.ensembl-matched-rsem",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+
 run-goseq-cuffref-gallus:
 
 	Rscript $(protocol)/goseq_cufflinks_gallus.R
@@ -526,6 +561,17 @@ run-blast-combined-human:
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.prot.longest",program="blastp",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.prot.longest.xml" $(protocol)/blast.sh
 	cd combined; \
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
+
+annotate-combined:
+
+	#python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
+	#python $(protocol)/get_ensembl_matched_seqs_combined.py asm_cuff_ref_models.longest.fa \
+	#	asm_cuff_ref_models.longest.tophits.txt > asm_cuff_ref_models.ensembl-matched.fa
+
+	#cat asm_cuff_ref_models.ensembl-matched.fa | python $(protocol)/fasta-to-gene-list.py \
+	#	> asm_cuff_ref_models.ensembl-matched.txt
+	qsub -v "knownIsoforms=asm_cuff_ref_models.ensembl-matched.txt,input=asm_cuff_ref_models.ensembl-matched.fa,\
+		output=asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_prepare_reference.sh
 
 run-goseq-ensembl-gallus:
 
