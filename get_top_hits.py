@@ -4,6 +4,8 @@ from Bio.Blast import NCBIXML
 infile = sys.argv[1]
 print 'geneID\tscore\tbits\tE-value'
 for n, blast_rec in enumerate(NCBIXML.parse(open(infile))):
+    if n % 1000 == 0:
+        print >> sys.stderr, '...', n
     try:
         alignment = blast_rec.alignments[0]
     except IndexError:
