@@ -105,8 +105,8 @@ annotate-global-asm:
 rsem-prepare-reference-global-asm-ensembl-matched:
 
 	cd assembly/global_merged; \
-		python $(protocol)/get_ensembl_matched_seqs_assembly.py transcripts.fa.clean.nr \
-		genes.tophits.txt > transcripts.ensembl-matched.fa
+	python $(protocol)/get_best_ensembl_hits_assembly.py genes.tophits.txt \
+	transcripts.fa.clean.nr > transcripts.ensembl-matched.fa
 
 	cd assembly/global_merged; cat transcripts.ensembl-matched.fa | python $(protocol)/prepare-transcripts.py \
 		transcripts.ensembl-matched.rsem.fa knownIsoforms.ensembl-matched.txt
@@ -562,16 +562,24 @@ run-blast-combined-human:
 	cd combined; \
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
-annotate-combined:
+annotate-gimme:
 
-	#python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
-	#python $(protocol)/get_ensembl_matched_seqs_combined.py asm_cuff_ref_models.longest.fa \
-	#	asm_cuff_ref_models.longest.tophits.txt > asm_cuff_ref_models.ensembl-matched.fa
+	python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
+	python $(protocol)/get_ensembl_matched_seqs_combined.py asm_cuff_ref_models.longest.fa \
+		asm_cuff_ref_models.longest.tophits.txt > asm_cuff_ref_models.ensembl-matched.fa
 
-	#cat asm_cuff_ref_models.ensembl-matched.fa | python $(protocol)/fasta-to-gene-list.py \
-	#	> asm_cuff_ref_models.ensembl-matched.txt
+	cat asm_cuff_ref_models.ensembl-matched.fa | python $(protocol)/fasta-to-gene-list.py \
+		> asm_cuff_ref_models.ensembl-matched.txt
 	qsub -v "knownIsoforms=asm_cuff_ref_models.ensembl-matched.txt,input=asm_cuff_ref_models.ensembl-matched.fa,\
 		output=asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_prepare_reference.sh
+
+rsem-calc-gimme-ensembl-matched:
+
+	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_single.sh
+
+	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 run-goseq-ensembl-gallus:
 
