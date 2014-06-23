@@ -70,7 +70,6 @@ def main():
     tophit_genes = set()
     for value in ensbl_genes.itervalues():
         tophit_genes.add(value[0])
-    print list(tophit_genes)[:5]
     tophit_transcripts = set()
     for trnx, gene in transcript_db.iteritems():
         if gene in tophit_genes:
