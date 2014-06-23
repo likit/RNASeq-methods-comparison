@@ -347,22 +347,26 @@ run-blast-cuffref-human:
 
 annotate-cuffref:
 
-	cd tophat/merged_cuff_ref; python $(protocol)/gene-rep-cufflinks.py merged-ref.transcripts.fa > merged-ref.genes.fa
 	cd tophat/merged_cuff_ref; \
-		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" $(protocol)/blast.sh
+		python $(protocol)/gene-rep-cufflinks.py merged-ref.transcripts.fa > merged-ref.genes.fa
+	cd tophat/merged_cuff_ref; \
+		qsub -v db="Gallus_prot",input="merged-ref.genes.fa",program="blastx",output="merged-ref.genes.xml" \
+		$(protocol)/blast.sh
 
 rsem-prepare-reference-cuffref-ensembl-matched:
 
-	#cd tophat/merged_cuff_ref; \
-	#	python $(protocol)/get_top_hits.py merged-ref.genes.xml > merged-ref.tophits.txt
-	#cd tophat/merged_cuff_ref; \
-	#	cat merged.rsem.gtf | python $(protocol)/cufflinks-to-known-isoforms.py > knownIsoforms.txt
+	cd tophat/merged_cuff_ref; \
+		python $(protocol)/get_top_hits.py merged-ref.genes.xml > merged-ref.tophits.txt
+	cd tophat/merged_cuff_ref; \
+		cat merged.rsem.gtf | python $(protocol)/cufflinks-to-known-isoforms.py > knownIsoforms.txt
 
-	# cd tophat/merged_cuff_ref; \
-	# 	python $(protocol)/get_best_ensembl_hits_cufflinks.py merged-ref.tophits.txt merged-ref.genes.fa \
-	# 	knownIsoforms.txt > merged.ensembl-matched.fa
+	cd tophat/merged_cuff_ref; \
+		python $(protocol)/get_best_ensembl_hits_cufflinks.py merged-ref.tophits.txt merged-ref.genes.fa \
+		knownIsoforms.txt > merged.ensembl-matched.fa
 
-	cd tophat/merged_cuff_ref; qsub -v "input=merged.ensembl-matched.fa,knownIsoforms=knownIsoforms.txt,output=merged.ensembl-matched-rsem" $(protocol)/rsem_prepare_reference.sh
+	cd tophat/merged_cuff_ref; qsub -v \
+	"input=merged.ensembl-matched.fa,knownIsoforms=knownIsoforms.txt,output=merged.ensembl-matched-rsem" \
+	$(protocol)/rsem_prepare_reference.sh
 
 run-rsem-cufflinks-ref-ensembl-matched:
 
