@@ -122,6 +122,16 @@ rsem-calc-expression-global-asm-ensembl-matched:
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
+run-ebseq-global-asm-ensembl-matched:
+
+	cd assembly/global_merged; \
+	rsem-generate-data-matrix line7u-single-ensbl-matched-rsem.genes.results  \
+		line7u-paired-ensbl-matched-rsem.genes.results line7i-single-ensbl-matched-rsem.genes.results  \
+		line7i-paired-ensbl-matched-rsem.genes.results > line7u_vs_i.gene-ensbl-matched.counts.matrix
+	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene-ensbl-matched.counts.matrix 2,2 \
+		line7u_vs_i.ensembl-matched.degenes
+	cd assembly/global_merged; rsem-control-fdr line7u_vs_i.ensembl-matched.degenes 0.05 line7u_vs_i.ensembl-matched.degenes.fdr.05
+
 rsem-prepare-reference-global-asm:
 
 	cd assembly/global_merged; cat transcripts.fa.clean.nr | python $(protocol)/prepare-transcripts.py transcripts.fa.clean.nr.rsem knownIsoforms.txt
@@ -144,7 +154,7 @@ rsem-calc-expression-global-asm:
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-rsem",index="transcripts-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
-run-ebseq-line7-global-asm:
+run-ebseq-global-asm:
 
 	cd assembly/global_merged; \
 	rsem-generate-data-matrix line7u-single-rsem.genes.results  \
