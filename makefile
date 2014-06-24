@@ -355,10 +355,10 @@ annotate-cuffref:
 
 rsem-prepare-reference-cuffref-ensembl-matched:
 
-	cd tophat/merged_cuff_ref; \
-		python $(protocol)/get_top_hits.py merged-ref.genes.xml > merged-ref.tophits.txt
-	cd tophat/merged_cuff_ref; \
-		cat merged.rsem.gtf | python $(protocol)/cufflinks-to-known-isoforms.py > knownIsoforms.txt
+	# cd tophat/merged_cuff_ref; \
+	# 	python $(protocol)/get_top_hits.py merged-ref.genes.xml > merged-ref.tophits.txt
+	# cd tophat/merged_cuff_ref; \
+	# 	cat merged.rsem.gtf | python $(protocol)/cufflinks-to-known-isoforms.py > knownIsoforms.txt
 
 	cd tophat/merged_cuff_ref; \
 		python $(protocol)/get_best_ensembl_hits_cufflinks.py merged-ref.tophits.txt merged-ref.genes.fa \
@@ -568,9 +568,9 @@ run-blast-combined-human:
 
 annotate-gimme:
 
-	python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
-	python $(protocol)/get_ensembl_matched_seqs_combined.py asm_cuff_ref_models.longest.fa \
-		asm_cuff_ref_models.longest.tophits.txt > asm_cuff_ref_models.ensembl-matched.fa
+	# python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
+	python $(protocol)/get_best_ensembl_hits_combined.py asm_cuff_ref_models.longest.tophits.txt \
+		asm_cuff_ref_models.bed.fa > asm_cuff_ref_models.ensembl-matched.fa
 
 	cat asm_cuff_ref_models.ensembl-matched.fa | python $(protocol)/fasta-to-gene-list.py \
 		> asm_cuff_ref_models.ensembl-matched.txt
@@ -584,6 +584,18 @@ rsem-calc-gimme-ensembl-matched:
 
 	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
 	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+
+ebseq-gimme-ensembl-matched:
+
+	rsem-generate-data-matrix line7u-single-rsem-cuffref-ensembl-matched.genes.results \
+		line7u-paired-rsem-cuffref-ensembl-matched.genes.results \
+		line7i-single-rsem-cuffref-ensembl-matched.genes.results \
+		line7i-paired-rsem-cuffref-ensembl-matched.genes.results > \
+		line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix
+	rsem-run-ebseq line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix 2,2 \
+		line7u_vs_i.cuffref-ensembl-matched.degenes
+	rsem-control-fdr line7u_vs_i.cuffref-ensembl-matched.degenes 0.05 \
+		line7u_vs_i.cuffref-ensembl-matched.degenes.fdr.05
 
 run-goseq-ensembl-gallus:
 
