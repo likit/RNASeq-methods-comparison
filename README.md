@@ -12,15 +12,15 @@ Required software
 -----------------
 
 Please make sure all required software is available on your machine.
-* Bowtie 1.0
-* Bowtie 2.1.0
+* Bowtie 1.0 for RSEM
+* Bowtie 2.1.0 for Tophat
 * Tophat 2.0.9
-* Cufflinks 2.0.0
+* Cufflinks 2.1.1
 * Velvet 1.2.03
 * Oases 0.2.06
 * BLAT
 * RSEM 1.2.7
-* Condetri 2.1
+* Condetri 2.1 for quality trimming
 
 All software for Linux 64-bit machine can be downloaded at
 http://athyra.ged.msu.edu/~preeyano/software/.
