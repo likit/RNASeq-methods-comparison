@@ -4,12 +4,12 @@
 
 rsem-prepare-ensembl-reference:
 
-	python ~/rnaseq-comp-protocol/gtf_to_known_isoforms.py \
-		~/rnaseq-comp-protocol/Gallus_gallus.Galgal4.73.removed.gtf > Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt
+	python $(protocol)/gtf_to_known_isoforms.py \
+		Gallus_gallus.Galgal4.73.removed.gtf > Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt
 
-	rsem-prepare-reference --gtf $(protocol)/Gallus_gallus.Galgal4.73.removed.gtf \
+	rsem-prepare-reference --gtf Gallus_gallus.Galgal4.73.removed.gtf \
 		--transcript-to-gene-map Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt \
-		galGal4-removed.fa ensembl_genes
+		gal4selected.fa ensembl_genes
 
 rsem-calc-expression:
 
@@ -111,24 +111,25 @@ rsem-prepare-reference-global-asm-ensembl-matched:
 	cd assembly/global_merged; cat transcripts.ensembl-matched.fa | python $(protocol)/prepare-transcripts.py \
 		transcripts.ensembl-matched.rsem.fa knownIsoforms.ensembl-matched.txt
 
-	cd assembly/global_merged; qsub -v "input=transcripts.ensembl-matched.rsem.fa,knownIsoforms=knownIsoforms.ensembl-matched.txt,\
+	cd assembly/global_merged; qsub -v "input=transcripts.ensembl-matched.rsem.fa,\
+		knownIsoforms=knownIsoforms.ensembl-matched.txt,\
 		output=transcripts.ensembl-matched-rsem" $(protocol)/rsem_prepare_reference.sh
 
 rsem-calc-expression-global-asm-ensembl-matched:
 
-	cd assembly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
-	cd assembly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7u.se.fq",sample_name="line7u-single-ensembl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
+	cd assembly/global_merged; qsub -v input_read="../../reads/line7i.se.fq",sample_name="line7i-single-ensembl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_single.sh
 
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
-	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensbl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensembl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; qsub -v input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensembl-matched-rsem",index="transcripts.ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 run-ebseq-global-asm-ensembl-matched:
 
 	cd assembly/global_merged; \
-	rsem-generate-data-matrix line7u-single-ensbl-matched-rsem.genes.results  \
-		line7u-paired-ensbl-matched-rsem.genes.results line7i-single-ensbl-matched-rsem.genes.results  \
-		line7i-paired-ensbl-matched-rsem.genes.results > line7u_vs_i.gene-ensbl-matched.counts.matrix
-	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene-ensbl-matched.counts.matrix 2,2 \
+	rsem-generate-data-matrix line7u-single-ensembl-matched-rsem.genes.results  \
+		line7u-paired-ensembl-matched-rsem.genes.results line7i-single-ensembl-matched-rsem.genes.results  \
+		line7i-paired-ensembl-matched-rsem.genes.results > line7u_vs_i.gene-ensembl-matched.counts.matrix
+	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene-ensembl-matched.counts.matrix 2,2 \
 		line7u_vs_i.ensembl-matched.degenes
 	cd assembly/global_merged; rsem-control-fdr line7u_vs_i.ensembl-matched.degenes 0.05 line7u_vs_i.ensembl-matched.degenes.fdr.05
 
@@ -296,7 +297,7 @@ run-blast-cufflinks-denovo-human:
 
 run-cuffmerge-ref:
 
-	cd tophat; cuffmerge -o merged_cuff_ref --ref-gtf ../Gallus_UCSC_ensembl_73.gtf -s gal4selected.fa -p 4 merge_list.txt
+	cd tophat; cuffmerge -o merged_cuffref --ref-gtf $(protocol)/Gallus_gallus.Galgal4.73.removed.gtf -s ../galGal4-removed.fa -p 4 merge_list.txt
 
 run-rsem-cufflinks-ref:
 
@@ -342,6 +343,7 @@ get-DE-sequences-cuffref:
 
 	cd tophat/merged_cuff_ref; \
 		python ~/rnaseq-comp-protocol/rsem-output-to-fasta.py line7u_vs_i.degenes.fdr.05 merged-ref.transcripts.fa > line7u_vs_i.degenes.fdr.05.fa
+
 run-blast-cuffref-gallus:
 
 	cd tophat/merged_cuff_ref; \
@@ -391,6 +393,18 @@ run-rsem-cufflinks-ref-ensembl-matched:
 		qsub -v index="merged.ensembl-matched-rsem",input_read1="../../reads/line7u.pe.1",input_read2="../../reads/line7u.pe.2",sample_name="line7u-paired-ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 	cd tophat/merged_cuff_ref; \
 		qsub -v index="merged.ensembl-matched-rsem",input_read1="../../reads/line7i.pe.1",input_read2="../../reads/line7i.pe.2",sample_name="line7i-paired-ensembl-matched-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+
+run-ebseq-cufflinks-ref-ensembl-matched:
+
+	cd tophat/merged_cuff_ref; \
+	rsem-generate-data-matrix line7u-single-ensembl-matched-rsem.genes.results \
+		line7u-paired-ensembl-matched-rsem.genes.results \
+		line7i-single-ensembl-matched-rsem.genes.results \
+		line7i-paired-ensembl-matched-rsem.genes.results > line7u_vs_i.gene-ensembl-matched.counts.matrix
+	cd tophat/merged_cuff_ref; rsem-run-ebseq line7u_vs_i.gene-ensembl-matched.counts.matrix 2,2 \
+		line7u_vs_i.ensembl-matched.degenes
+	cd tophat/merged_cuff_ref; rsem-control-fdr line7u_vs_i.ensembl-matched.degenes 0.05 \
+		line7u_vs_i.ensembl-matched.degenes.fdr.05
 
 run-goseq-cuffref-gallus:
 
