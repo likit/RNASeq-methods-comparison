@@ -4,7 +4,7 @@
 #PBS -m abe
 #PBS -N Tophat_${PBS_JOBID}
 
-module load bowtie2
+module load bowtie2/2.1.0
 cd ${PBS_O_WORKDIR}
 
 ~/tophat-2.0.9.Linux_x86_64/tophat -r 25 -p 4 -o ${outdir} ${index} ${left} ${right},${unpaired}
