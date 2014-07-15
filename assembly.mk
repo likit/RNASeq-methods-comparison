@@ -9,14 +9,17 @@ interleave-reads:
 
 run-velveth:
 
+	# requires Velvet 1.2.03
 	cd assembly; qsub -v \
 		pe_input="paired.fastq",se_input="single.fastq" \
 		$(protocol)/velveth_job.sh
 
 run-velvetg:
 
+	# requires Velvet 1.2.03
 	cd assembly; qsub $(protocol)/velvetg_job.sh
 
 run-oases:
 
+	# requires Oases 0.2.06
 	cd assembly; qsub $(protocol)/oases_job.sh

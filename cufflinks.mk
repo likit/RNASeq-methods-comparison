@@ -51,12 +51,13 @@ run-tophat-pe:
 
 run-cufflinks:
 
-	# requires Cufflinks 2.0.0
+	# requires Cufflinks 2.1.1
 	cd tophat; for d in line??_?e; do qsub -v outdir="$$d",input="$$d/accepted_hits.bam" \
 		$(protocol)/cufflinks_job.sh; echo $$d; done
 
 run-cuffmerge-ref:
 
-	# requires Cufflinks 2.0.0
-	cd tophat; cuffmerge -g ../Gallus_UCSC_ensembl_73.gtf.removed \
+	# requires Cufflinks 2.1.1
+	#../Gallus_UCSC_ensembl_73.gtf.removed
+	cd tophat; cuffmerge -g ../Gallus_gallus.Galgal4.73.removed.gtf
 		-o merged_cuff_ref -s gal4selected.fa -p 4 $(protocol)/merge_list.txt
