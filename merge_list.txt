@@ -1,0 +1,8 @@
+line6i_pe_cuff/transcripts.gtf
+line6i_se_cuff/transcripts.gtf
+line6u_pe_cuff/transcripts.gtf
+line6u_se_cuff/transcripts.gtf
+line7i_pe_cuff/transcripts.gtf
+line7i_se_cuff/transcripts.gtf
+line7u_pe_cuff/transcripts.gtf
+line7u_se_cuff/transcripts.gtf
