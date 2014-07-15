@@ -590,6 +590,7 @@ run-blast-combined-human:
 	cd combined; \
 		qsub -v db="Human_prot",input="line7u_vs_i.degenes.fdr.05.fa.longest",program="blastx",output="Human_blast/line7u_vs_i.degenes.fdr.05.fa.longest.xml" $(protocol)/blast.sh
 
+
 annotate-gimme:
 
 	# python $(protocol)/get_top_hits.py asm_cuff_ref_models.longest.xml > asm_cuff_ref_models.longest.tophits.txt
@@ -621,10 +622,15 @@ ebseq-gimme-ensembl-matched:
 	rsem-control-fdr line7u_vs_i.cuffref-ensembl-matched.degenes 0.05 \
 		line7u_vs_i.cuffref-ensembl-matched.degenes.fdr.05
 
+run-goseq-ensembl-human:
+
+	cd human/ensembl; \
+		Rscript $(protocol)/goseq_ensembl_human.R
+
 run-goseq-ensembl-gallus:
 
 	cd gallus/ensembl; \
-	Rscript $(protocol)/goseq_ensembly_gallus.R
+	Rscript $(protocol)/goseq_ensembl_gallus.R
 
 run-goseq-cufflinks-gallus:
 
