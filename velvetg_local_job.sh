@@ -1,5 +1,5 @@
 #!/bin/sh -login
-#PBS -l nodes=1:ppn=1,mem=48gb,walltime=24:00:00
+#PBS -l nodes=1:ppn=1,mem=64gb,walltime=24:00:00
 #PBS -M preeyano@msu.edu
 #PBS -m abe
 #PBS -N Velvetg_local_${PBS_JOBID}
