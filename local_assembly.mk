@@ -15,6 +15,7 @@ merge-bams:
 		line7u_pe/"$$chr".bam line7u_se/"$$chr".bam \
 		line7i_pe/"$$chr".bam line7i_se/"$$chr".bam; \
 	done
+	cd tophat; rm chr32.bam # no reads mapped to chromosome 32
 
 run-velveth-local:
 
@@ -25,16 +26,16 @@ run-velveth-local:
 
 run-velvetg-local:
 
-	cd tophat/merged; \
+	cd local_assembly; \
 	for d in chr*_*; \
-		do qsub -v indir="$$d" ~/mdv-protocol/velvetg_local_job.sh; \
+		do qsub -v indir="$$d" $(protocol)/velvetg_local_job.sh; \
 	done
 
 run-oases-local:
 
-	cd tophat/merged; \
+	cd local_assembly; \
 	for d in chr*_*; \
-		do qsub -v indir="$$d" ~/mdv-protocol/oases_local_job.sh; \
+		do qsub -v indir="$$d" $(protocol)/oases_local_job.sh; \
 	done
 
 combine-transcripts:
