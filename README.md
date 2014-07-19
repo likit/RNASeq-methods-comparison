@@ -29,13 +29,24 @@ http://athyra.ged.msu.edu/~preeyano/software/.
 
 #Data processing
 
+Set up protocol and gimme path:
+
+    export PROTOCOL=<path to protocol root directory>
+    export GIMMEDIR=<path to Gimme root directory>
+
 ###Merged models
 
 Build merged models:
 
+    make -f ~/rnaseq-protocol/gimme.mk protocol=$PROTOCOL gimmedir=$GIMMEDIR build-merged-gene-models
+
+Note, output may contain warning messages from pygr.
+The messages have to be removed from gimme.bed file before running the next step.
+
 Build RSEM reference for Ensembl-matched merged models:
 
-    make -f ~/rnaseq-protocol/gimme.mk protocol=~/rnaseq-protocol rsem-prepare-reference-merged-models
+    make -f ~/rnaseq-protocol/gimme.mk protocol=$PROTOCOL rsem-prepare-reference-merged-models
 
 Run RSEM on Ensembl-matched merged models:
 
+    make -f ~/rnaseq-protocol/gimme.mk protocol=~/rnaseq-protocol rsem-calc-expression-merged-models
