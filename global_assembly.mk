@@ -43,6 +43,62 @@ clean-transcripts:
 	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" \
 		$(protocol)/cdhit_job.sh
 
-remove-redundant-seq:
+annotate-assembly:
 
-	cd assembly; qsub -v input="global_merged.fa.clean",output="global_merged.fa.clean.nr",c="1.0" $(protocol)/cdhit_job.sh
+	cd assembly/global_merged; python $(protocol)/gene-rep-velvet.py \
+		transcripts.fa.clean.nr > assembly-genes.fa
+	cd assembly/global_merged; \
+		qsub -v "db=Gallus_prot,input=assembly-genes.fa,program=blastx,\
+		output=assembly-genes-gga.xml" $(protocol)/blast.sh
+	cd assembly/global_merged; \
+		qsub -v "db=Human_prot,input=assembly-genes.fa,program=blastx,\
+		output=assembly-genes-hsa.xml" $(protocol)/blast.sh
+
+rsem-prepare-reference-assembly:
+
+	cd assembly/global_merged; \
+		python $(protocol)/get_top_hits.py assembly-genes-gga.xml > assembly-gga-tophits.txt
+
+	cd assembly/global_merged; \
+		python $(protocol)/get_best_ensembl_hits_assembly.py assembly-gga-tophits.txt \
+		transcripts.fa.clean.nr > transcripts-gga.fa
+
+	cd assembly/global_merged; \
+		cat transcripts-gga.fa | python $(protocol)/prepare-transcripts.py \
+		transcripts-gga-rsem.fa knownIsoforms.gga.txt
+
+	cd assembly/global_merged; \
+		qsub -v "input=transcripts-gga-rsem.fa,knownIsoforms=knownIsoforms.gga.txt,\
+		output=transcripts-gga-rsem" $(protocol)/rsem_prepare_reference.sh
+
+rsem-calc-expression-assembly:
+
+	cd assembly/global_merged; \
+		qsub -v "input_read=../../reads/line7u.se.fq,\
+		sample_name=line7u-single-rsem,\
+		index=transcripts-gga-rsem" $(protocol)/rsem_calculate_expr_single.sh
+	cd assembly/global_merged; \
+		qsub -v "input_read=../../reads/line7i.se.fq,\
+		sample_name=line7i-single-rsem,\
+		index=transcripts-gga-rsem" $(protocol)/rsem_calculate_expr_single.sh
+
+	cd assembly/global_merged; \
+		qsub -v "input_read1=../../reads/line7u.pe.1,\
+		input_read2=../../reads/line7u.pe.2,\
+		sample_name=line7u-paired-rsem,\
+		index=transcripts-gga-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	cd assembly/global_merged; \
+		qsub -v "input_read1=../../reads/line7i.pe.1,\
+		input_read2=../../reads/line7i.pe.2,\
+		sample_name=line7i-paired-rsem,\
+		index=transcripts-gga-rsem" $(protocol)/rsem_calculate_expr_paired.sh
+
+run-ebseq-global-assembly:
+
+	cd assembly/global_merged; \
+	rsem-generate-data-matrix line7u-single-ensembl-matched-rsem.genes.results  \
+		line7u-paired-ensembl-matched-rsem.genes.results line7i-single-ensembl-matched-rsem.genes.results  \
+		line7i-paired-ensembl-matched-rsem.genes.results > line7u_vs_i.gene-ensembl-matched.counts.matrix
+	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene-ensembl-matched.counts.matrix 2,2 \
+		line7u_vs_i.ensembl-matched.degenes
+	cd assembly/global_merged; rsem-control-fdr line7u_vs_i.ensembl-matched.degenes 0.05 line7u_vs_i.ensembl-matched.degenes.fdr.05
