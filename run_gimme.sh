@@ -9,4 +9,4 @@ module load pygr
 module load matplotlib
 
 cd ${PBS_O_WORKDIR}
-python ~/gimme/src/gimme.py -r ${ref} ${input1} ${input2} > ${output} 2>gimme.log
+python ${gimme_dir}/gimme.py -r ${ref} ${input1} ${input2} > ${output} 2>gimme.log
