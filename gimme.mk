@@ -53,4 +53,55 @@ build-merged-gene-models:
 		../tophat/merged_cuff_ref/merged.bed; \
 	qsub -v "output=gimme-models.bed,input1=all.fa.clean.nr.psl.best,\
 		input2=../tophat/merged_cuff_ref/merged.bed,\
-		ref=../gal4selected.fa" $(protocol)/run_gimme.sh
+		gimme_dir=$(gimmedir)/src/,ref=../gal4selected.fa" $(protocol)/run_gimme.sh
+
+merged-models-to-transcripts:
+
+	cd gimme; python $(gimmedir)/src/utils/get_transcript_seq.py \
+		gimme.bed ../gal4selected.fa > gimme.bed.fa
+
+annotate-merged-genes:
+
+	cd gimme; python $(protocol)/gene-rep-merged.py gimme.bed.fa > gimme.longest.fa
+
+	cd gimme; \
+		qsub -v db="Gallus_prot",input="gimme.longest.fa",program="blastx",output="gimme-gga.xml" \
+			$(protocol)/blast.sh
+
+	cd gimme; \
+		qsub -v db="Human_prot",input="gimme.longest.fa",program="blastx",output="gimme-hsa.xml" \
+			$(protocol)/blast.sh
+
+rsem-prepare-reference-merged-models:
+
+	# cd gimme; \
+	# 	python $(protocol)/get_top_hits.py gimme-gga.xml > gimme-gga-tophits.txt; \
+	# 	python $(protocol)/get_best_ensembl_hits_combined.py gimme-gga-tophits.txt \
+	# 	gimme.bed.fa > gimme-gga.fa
+
+	# cd gimme; \
+	# 	cat gimme-gga.fa | python $(protocol)/fasta-to-gene-list.py > gimme-gga-list.txt
+
+	cd gimme; \
+	qsub -v "knownIsoforms=gimme-gga-list.txt,input=gimme-gga.fa,\
+		output=gimme-gga-rsem" $(protocol)/rsem_prepare_reference.sh
+
+rsem-calc-gimme-ensembl-matched:
+
+	qsub -v input_read="reads/line7u.se.fq",sample_name="line7u-single-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_single.sh
+	qsub -v input_read="reads/line7i.se.fq",sample_name="line7i-single-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_single.sh
+
+	qsub -v input_read1="reads/line7u.pe.1",input_read2="reads/line7u.pe.2",sample_name="line7u-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+	qsub -v input_read1="reads/line7i.pe.1",input_read2="reads/line7i.pe.2",sample_name="line7i-paired-rsem-cuffref-ensembl-matched",index="asm_cuff_ref_models_ensembl_matched_rsem" $(protocol)/rsem_calculate_expr_paired.sh
+
+ebseq-gimme-ensembl-matched:
+
+	rsem-generate-data-matrix line7u-single-rsem-cuffref-ensembl-matched.genes.results \
+		line7u-paired-rsem-cuffref-ensembl-matched.genes.results \
+		line7i-single-rsem-cuffref-ensembl-matched.genes.results \
+		line7i-paired-rsem-cuffref-ensembl-matched.genes.results > \
+		line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix
+	rsem-run-ebseq line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix 2,2 \
+		line7u_vs_i.cuffref-ensembl-matched.degenes
+	rsem-control-fdr line7u_vs_i.cuffref-ensembl-matched.degenes 0.05 \
+		line7u_vs_i.cuffref-ensembl-matched.degenes.fdr.05
