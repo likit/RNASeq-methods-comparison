@@ -100,7 +100,9 @@ annotate-global-asm:
 
 	# cd assembly/global_merged; python ~/rnaseq-comp-protocol/gene-rep-velvet.py transcripts.fa.clean.nr > genes.fa
 	cd assembly/global_merged; \
-		qsub -v db="Gallus_prot",input="genes.fa",program="blastx",output="genes.xml" ~/rnaseq-comp-protocol/blast.sh
+		qsub -v db="Gallus_prot",input="genes.fa",program="blastx",output="genes.xml" $(protocol)/blast.sh
+	cd assembly/global_merged; \
+		qsub -v db="Human_prot",input="genes.fa",program="blastx",output="genes.human.xml" $(protocol)/blast.sh
 
 rsem-prepare-reference-global-asm-ensembl-matched:
 
