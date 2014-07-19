@@ -9,4 +9,4 @@ module load pygr
 module load matplotlib
 
 cd ${PBS_O_WORKDIR}
-python ~/gimme/src/gimme.py -r ${ref} ${input1} ${input2} > ${input1}.merged.bed 2>${input}.merged.gimme.log
+python ~/gimme/src/gimme.py -r ${ref} ${input1} ${input2} > ${output} 2>gimme.log
