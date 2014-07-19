@@ -26,3 +26,16 @@ Please make sure all required software is available on your machine.
 
 All software for Linux 64-bit machine can be downloaded at
 http://athyra.ged.msu.edu/~preeyano/software/.
+
+#Data processing
+
+###Merged models
+
+Build merged models:
+
+Build RSEM reference for Ensembl-matched merged models:
+
+    make -f ~/rnaseq-protocol/gimme.mk protocol=~/rnaseq-protocol rsem-prepare-reference-merged-models
+
+Run RSEM on Ensembl-matched merged models:
+
