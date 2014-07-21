@@ -120,3 +120,19 @@ ebseq-gimme:
 
 	cd gimme; \
 	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
+
+get-tophits-degenes:
+
+	cd gimme; \
+		python $(protocol)/tophits-to-degenes-gimme.py \
+		line7u_vs_i.degenes.fdr.05 gimme-gga-tophits.txt \
+		> line7u_vs_i.degenes.fdr.05.gga.tophits
+
+	cd gimme; \
+		python $(protocol)/get_top_hits.py gimme-hsa.xml \
+		> gimme-hsa-tophits.txt
+
+	cd gimme; \
+		python $(protocol)/tophits-to-degenes-gimme.py \
+		line7u_vs_i.degenes.fdr.05 gimme-hsa-tophits.txt \
+		> line7u_vs_i.degenes.fdr.05.hsa.tophits
