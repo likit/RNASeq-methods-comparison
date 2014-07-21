@@ -34,19 +34,52 @@ Set up protocol and gimme path:
     export PROTOCOL=<path to protocol root directory>
     export GIMMEDIR=<path to Gimme root directory>
 
+###Cufflinks
+
+Run RSEM prepare reference:
+
+    make -f $PROTOCOL/cufflinks.mk prepare-reference-cufflinks
+
+Run RSEM:
+
+    make -f $PROTOCOL/cufflinks.mk run-rsem-calc-expression-cufflinks
+
+Run EBseq:
+
+    make -f $PROTOCOL/cufflinks.mk run-ebseq-cufflinks
+
+###Global assembly
+
+
+Run RSEM prepare reference:
+
+    make -f $PROTOCOL/global_assembly.mk rsem-prepare-reference-assembly
+
+Run RSEM:
+
+    make -f $PROTOCOL/global_assembly.mk rsem-calc-expression-assembly
+
+Run EBseq:
+
+    make -f $PROTOCOL/global_assembly.mk run-ebseq-assembly
+
 ###Merged models
 
 Build merged models:
 
-    make -f ~/rnaseq-protocol/gimme.mk protocol=$PROTOCOL gimmedir=$GIMMEDIR build-merged-gene-models
+    make -f $PROTOCOL/gimme.mk protocol=$PROTOCOL gimmedir=$GIMMEDIR build-merged-gene-models
 
-Note, output may contain warning messages from pygr.
-The messages have to be removed from gimme.bed file before running the next step.
+Note, gimme.bed may contain warning messages from pygr at the beginning of the file.
+The messages have to be removed before running the next step.
 
 Build RSEM reference for Ensembl-matched merged models:
 
-    make -f ~/rnaseq-protocol/gimme.mk protocol=$PROTOCOL rsem-prepare-reference-merged-models
+    make -f $PROTOCOL/gimme.mk protocol=$PROTOCOL rsem-prepare-reference-merged-models
 
 Run RSEM on Ensembl-matched merged models:
 
-    make -f ~/rnaseq-protocol/gimme.mk protocol=~/rnaseq-protocol rsem-calc-expression-merged-models
+    make -f $PROTOCOL/gimme.mk protocol=$PROTOCOL rsem-calc-expression-merged-models
+
+Run EBseq:
+
+    make -f $PROTOCOL/gimme.mk ebseq-gimme

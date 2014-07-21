@@ -119,7 +119,7 @@ run-rsem-calc-expression-cufflinks:
 		input_read2=../../reads/line7i.pe.2,sample_name=line7i-paired-rsem" \
 		$(protocol)/rsem_calculate_expr_paired.sh
 
-run-ebseq-cufflinks-ref-ensembl-matched:
+run-ebseq-cufflinks:
 
 	cd tophat/merged_cuff_ref; \
 	rsem-generate-data-matrix line7u-single-rsem.genes.results \
@@ -131,4 +131,4 @@ run-ebseq-cufflinks-ref-ensembl-matched:
 		line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
 
 	cd tophat/merged_cuff_ref; rsem-control-fdr \
-		line7u_vs_i..degenes 0.05 line7u_vs_i.degenes.fdr.05
+		line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05

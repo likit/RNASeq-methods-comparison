@@ -89,33 +89,34 @@ rsem-prepare-reference-merged-models:
 rsem-calc-expression-merged-models:
 
 	cd gimme; \
-	qsub -v "input_read=reads/line7u.se.fq,\
+	qsub -v "input_read=../reads/line7u.se.fq,\
 		sample_name=line7u-single-rsem,index=gimme-gga-rsem" \
 		$(protocol)/rsem_calculate_expr_single.sh
 
 	cd gimme; \
-	qsub -v "input_read=reads/line7i.se.fq,\
+	qsub -v "input_read=../reads/line7i.se.fq,\
 		sample_name=line7i-single-rsem,index=gimme-gga-rsem" \
 		$(protocol)/rsem_calculate_expr_single.sh
 
 	cd gimme; \
-	qsub -v "input_read1=reads/line7u.pe.1,\
-		input_read2=reads/line7u.pe.2,sample_name=line7u-paired-rsem,\
+	qsub -v "input_read1=../reads/line7u.pe.1,\
+		input_read2=../reads/line7u.pe.2,sample_name=line7u-paired-rsem,\
 		index=gimme-gga-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
 	cd gimme; \
-	qsub -v "input_read1=reads/line7i.pe.1,\
-		input_read2=reads/line7i.pe.2,sample_name=line7i-paired-rsem,\
+	qsub -v "input_read1=../reads/line7i.pe.1,\
+		input_read2=../reads/line7i.pe.2,sample_name=line7i-paired-rsem,\
 		index=gimme-gga-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
-ebseq-gimme-ensembl-matched:
+ebseq-gimme:
 
-	rsem-generate-data-matrix line7u-single-rsem-cuffref-ensembl-matched.genes.results \
-		line7u-paired-rsem-cuffref-ensembl-matched.genes.results \
-		line7i-single-rsem-cuffref-ensembl-matched.genes.results \
-		line7i-paired-rsem-cuffref-ensembl-matched.genes.results > \
-		line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix
-	rsem-run-ebseq line7u_vs_i.gene.cuffref-ensembl-matched.counts.matrix 2,2 \
-		line7u_vs_i.cuffref-ensembl-matched.degenes
-	rsem-control-fdr line7u_vs_i.cuffref-ensembl-matched.degenes 0.05 \
-		line7u_vs_i.cuffref-ensembl-matched.degenes.fdr.05
+	cd gimme; \
+	rsem-generate-data-matrix line7u-single-rsem.genes.results \
+		line7u-paired-rsem.genes.results line7i-single-rsem.genes.results \
+		line7i-paired-rsem.genes.results > line7u_vs_i.gene.counts.matrix
+
+	cd gimme; \
+	rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 line7u_vs_i.degenes
+
+	cd gimme; \
+	rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05

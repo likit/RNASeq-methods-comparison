@@ -39,8 +39,9 @@ run-oasesM:
 clean-transcripts:
 
 	# -A needed to keep poly-A tail
-	cd assembly/global_merged; ~/seqclean-x86_64/seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
-	qsub -v input="assembly/global_merged/transcripts.fa.clean",output="assembly/global_merged/transcripts.fa.clean.nr",c="1.0" \
+	cd assembly/global_merged; seqclean transcripts.fa -c 8 -A -o transcripts.fa.clean
+	qsub -v "input=assembly/global_merged/transcripts.fa.clean,\
+		output=assembly/global_merged/transcripts.fa.clean.nr,c=1.0" \
 		$(protocol)/cdhit_job.sh
 
 annotate-assembly:
@@ -93,12 +94,16 @@ rsem-calc-expression-assembly:
 		sample_name=line7i-paired-rsem,\
 		index=transcripts-gga-rsem" $(protocol)/rsem_calculate_expr_paired.sh
 
-run-ebseq-global-assembly:
+run-ebseq-assembly:
 
 	cd assembly/global_merged; \
-	rsem-generate-data-matrix line7u-single-ensembl-matched-rsem.genes.results  \
-		line7u-paired-ensembl-matched-rsem.genes.results line7i-single-ensembl-matched-rsem.genes.results  \
-		line7i-paired-ensembl-matched-rsem.genes.results > line7u_vs_i.gene-ensembl-matched.counts.matrix
-	cd assembly/global_merged; rsem-run-ebseq line7u_vs_i.gene-ensembl-matched.counts.matrix 2,2 \
-		line7u_vs_i.ensembl-matched.degenes
-	cd assembly/global_merged; rsem-control-fdr line7u_vs_i.ensembl-matched.degenes 0.05 line7u_vs_i.ensembl-matched.degenes.fdr.05
+	rsem-generate-data-matrix line7u-single-rsem.genes.results  \
+		line7u-paired-rsem.genes.results line7i-single-rsem.genes.results  \
+		line7i-paired-rsem.genes.results > line7u_vs_i.gene.counts.matrix
+
+	cd assembly/global_merged; \
+		rsem-run-ebseq line7u_vs_i.gene.counts.matrix 2,2 \
+		line7u_vs_i.degenes
+
+	cd assembly/global_merged; \
+		rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
