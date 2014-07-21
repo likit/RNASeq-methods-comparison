@@ -107,3 +107,20 @@ run-ebseq-assembly:
 
 	cd assembly/global_merged; \
 		rsem-control-fdr line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
+
+get-tophits-degenes:
+
+	cd assembly/global_merged; \
+		python $(protocol)/tophits-to-degenes-assembly.py \
+		line7u_vs_i.degenes.fdr.05 assembly-gga-tophits.txt \
+		> line7u_vs_i.degenes.fdr.05.gga.tophits
+
+	# cd assembly/global_merged; \
+	# 	python $(protocol)/get_top_hits.py assembly-genes-hsa.xml \
+	# 	> assembly-hsa-tophits.txt
+
+	cd assembly/global_merged; \
+		python $(protocol)/tophits-to-degenes-assembly.py \
+		line7u_vs_i.degenes.fdr.05 assembly-hsa-tophits.txt \
+		> line7u_vs_i.degenes.fdr.05.hsa.tophits
+

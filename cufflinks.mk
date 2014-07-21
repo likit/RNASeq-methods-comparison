@@ -132,3 +132,19 @@ run-ebseq-cufflinks:
 
 	cd tophat/merged_cuff_ref; rsem-control-fdr \
 		line7u_vs_i.degenes 0.05 line7u_vs_i.degenes.fdr.05
+
+get-tophits-degenes:
+
+	cd tophat/merged_cuff_ref; \
+	python $(protocol)/tophits-to-degenes-cufflinks.py \
+		line7u_vs_i.degenes.fdr.05 merged-ref-gga-tophits.txt \
+		knownIsoforms.txt > line7u_vs_i.degenes.fdr.05.gga.tophits
+
+	cd tophat/merged_cuff_ref; \
+		python $(protocol)/get_top_hits.py merged-ref-genes-hsa.xml > merged-ref-hsa-tophits.txt
+
+	cd tophat/merged_cuff_ref; \
+	python $(protocol)/tophits-to-degenes-cufflinks.py \
+		line7u_vs_i.degenes.fdr.05 merged-ref-hsa-tophits.txt \
+		knownIsoforms.txt > line7u_vs_i.degenes.fdr.05.hsa.tophits
+
