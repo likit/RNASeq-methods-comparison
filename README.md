@@ -24,6 +24,18 @@ Please make sure all required software is available on your machine.
 * Seqclean
 * Biopython
 
+Required R packages
+-------------------
+
+All packages are available at bioconductor.org.
+
+* org.Gg.eg.db
+* org.Hs.eg.db
+* KEGG.db
+* GO.db
+* biomaRt
+* goseq
+
 All software for Linux 64-bit machine can be downloaded at
 http://athyra.ged.msu.edu/~preeyano/software/.
 
@@ -44,9 +56,13 @@ Run RSEM:
 
     make -f $PROTOCOL/cufflinks.mk run-rsem-calc-expression-cufflinks
 
-Run EBseq:
+Run EBseq with FDR 0.05:
 
     make -f $PROTOCOL/cufflinks.mk run-ebseq-cufflinks
+
+Get top hits for DE genes from chicken and human:
+
+    make -f $PROTOCOL/cufflinks.mk protocol=$PROTOCOL get-tophits-degenes
 
 ###Global assembly
 
@@ -59,9 +75,13 @@ Run RSEM:
 
     make -f $PROTOCOL/global_assembly.mk rsem-calc-expression-assembly
 
-Run EBseq:
+Run EBseq with FDR 0.05:
 
     make -f $PROTOCOL/global_assembly.mk run-ebseq-assembly
+
+Get top hits for DE genes from chicken and human:
+
+    make -f $PROTOCOL/global_assembly.mk protocol=$PROTOCOL get-tophits-degenes
 
 ###Merged models
 
@@ -80,6 +100,8 @@ Run RSEM on Ensembl-matched merged models:
 
     make -f $PROTOCOL/gimme.mk protocol=$PROTOCOL rsem-calc-expression-merged-models
 
-Run EBseq:
+Run EBseq with FDR 0.05:
 
     make -f $PROTOCOL/gimme.mk ebseq-gimme
+
+Get top hits for DE genes from chicken and human:

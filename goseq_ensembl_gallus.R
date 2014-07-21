@@ -3,7 +3,7 @@ library(org.Gg.eg.db)
 library(KEGG.db)
 library(biomaRt)
 
-degenes.table<-read.table('line7u_vs_i.degenes.fdr.05',
+degenes.table<-read.table('line7u_vs_i.ensembl.degenes.fdr.05',
                           stringsAsFactors=F, sep="\t", header=T)
 
 annots<-select(org.Gg.eg.db, keys=rownames(degenes.table),
@@ -58,7 +58,7 @@ df = lapply(KEGG_SIG$category, get_genes_kegg,
                 uniq.annotated.degenes,
                 "line7_goseq_KEGG_genes")
 
-write.table(KEGG_SIG, 'line7u_vs_i.degenes.KEGG.txt', sep='\t',
+write.table(KEGG_SIG, 'line7u_vs_i.ensembl.degenes.KEGG.txt', sep='\t',
             row.names=F, quote=F)
-write.table(uniq.annotated.degenes, 'uniq-annotated-degenes.txt',
+write.table(uniq.annotated.degenes, 'ensembl.uniq-annotated-degenes.txt',
             sep='\t', row.names=F, col.names=F, quote=F)

@@ -1,3 +1,15 @@
+get-all-pathways:
+
+	cd results; Rscript $(protocol)/get_all_ensembl_pathways.R
+
+run-goseq-ensembl-gallus:
+
+	cd results; Rscript $(protocol)/goseq_ensembl_gallus.R
+
+run-goseq-gimme-gallus:
+
+	cd results; Rscript $(protocol)/goseq_combined_gallus.R
+
 run-goseq-assembly-human:
 
 	# cd human/assembly; \

@@ -4,7 +4,7 @@ library(KEGG.db)
 library(ggplot2)
 library(biomaRt)
 
-degenes.table<-read.table('line7u_vs_i.degenes.tophits.nucl.txt',
+degenes.table<-read.table('line7u_vs_i.degenes.fdr.05.tophits.assembly',
                           stringsAsFactors=F, sep="\t", header=T)
 annots<-select(org.Gg.eg.db, keys=degenes.table$geneID,
                columns=c("SYMBOL","ENTREZID"), keytype="ENSEMBL")
@@ -39,7 +39,7 @@ KEGG_SIG = KEGG[KEGG$padjust<0.05,]
 pathway = stack(mget(KEGG[KEGG$padjust<0.05,]$category, KEGGPATHID2NAME))
 KEGG_SIG$pathway = pathway$values
 
-write.table(KEGG_SIG, 'line7u_vs_i.degenes.KEGG.txt', sep='\t',
+write.table(KEGG_SIG, 'line7u_vs_i.assembly.degenes.KEGG.txt', sep='\t',
             row.names=F, quote=F)
-write.table(uniq.annotated.degenes, 'uniq-annotated-degenes.txt', sep='\t',
+write.table(uniq.annotated.degenes, 'assembly.uniq-annotated-degenes.txt', sep='\t',
             row.names=F, col.names=F, quote=F)
