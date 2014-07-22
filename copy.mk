@@ -2,17 +2,19 @@ copypath=preeyano@hpc.msu.edu:/mnt/ls12/preeyanon/rnaseqcomp
 
 misc:
 
-	# scp $(copypath)/ensembl-hsa-tophits.txt\
-	# 	results/ensembl-hsa-tophits.txt
+	scp $(copypath)/ensembl-hsa-tophits.txt\
+		results/ensembl-hsa-tophits.txt
 
-	# scp $(copypath)/gimme/line7u_vs_i.degenes.fdr.05.gga.tophits \
-	# 	results/line7u_vs_i.gimme.degenes.fdr.05.gga.tophits
+	scp $(copypath)/gimme/line7u_vs_i.degenes.fdr.05.gga.tophits \
+		results/line7u_vs_i.gimme.degenes.fdr.05.gga.tophits
 
-	# scp $(copypath)/gimme/line7u_vs_i.degenes.fdr.05.hsa.tophits \
-	# 	results/line7u_vs_i.gimme.degenes.fdr.05.hsa.tophits
+	scp $(copypath)/gimme/line7u_vs_i.degenes.fdr.05.hsa.tophits \
+		results/line7u_vs_i.gimme.degenes.fdr.05.hsa.tophits
 
 	scp $(copypath)/all-ensembl-hsa-tophits.txt \
 		results/all-ensembl-hsa-tophits.txt
+
+	scp $(copypath)/gimme/gimme.bed results/gimme.bed
 
 ensembl:
 
