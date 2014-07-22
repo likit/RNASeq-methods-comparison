@@ -6,7 +6,7 @@ library(biomaRt)
 degenes.table<-read.table('line7u_vs_i.gimme.degenes.fdr.05.tophits.hsa',
                           stringsAsFactors=F, sep="\t", header=T)
 
-colnames(degenes.table)<-c("SeqId", "geneID")
+colnames(degenes.table)<-c("seqId", "geneID")
 annots<-select(org.Hs.eg.db, keys=degenes.table$geneID,
                columns=c("SYMBOL","ENTREZID", "PATH"),
                keytype="ENSEMBL")
@@ -14,20 +14,17 @@ annots<-select(org.Hs.eg.db, keys=degenes.table$geneID,
 annotated.degenes<-merge(degenes.table, annots,
                          by.x="geneID", by.y="ENSEMBL")
 
-# remove duplicated Entrez ID
+# remove duplicated genes
 uniq.annotated.degenes<-annotated.degenes[
                           !duplicated(annotated.degenes$geneID),]
 
-# remove gene with no Entrez ID
-uniq.annotated.degenes<-uniq.annotated.degenes[
-                           !is.na(uniq.annotated.degenes$ENTREZID),]
+allgenes<-read.table('all-ensembl-hsa-annotations.txt',
+                     sep='\t', header=F, stringsAsFactor=F)
 
-mart<-useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+allgenes<-sort(allgenes$V2)
+allgenes<-allgenes[!duplicated(allgenes)]
 
-allgenes<-getBM(attributes='ensembl_gene_id', mart=mart)
-allgenes<-allgenes$ensembl_gene_id
-
-gene.vector<-as.integer(allgenes%in%uniq.annotated.degenes$geneID)
+gene.vector<-as.integer(allgenes%in%degenes.table$geneID)
 names(gene.vector)<-allgenes
 
 pwf=nullp(gene.vector, 'hg19', 'ensGene')

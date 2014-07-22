@@ -7,7 +7,8 @@ degenes.table<-read.table('line7u_vs_i.ensembl.degenes.fdr.05',
                           stringsAsFactors=F, sep="\t", header=T)
 
 annots<-select(org.Gg.eg.db, keys=rownames(degenes.table),
-               columns=c("SYMBOL","ENTREZID"), keytype="ENSEMBL")
+               columns=c("SYMBOL","ENTREZID", "PATH"),
+               keytype="ENSEMBL")
 
 annotated.degenes<-merge(degenes.table, annots, by.x=0, by.y="ENSEMBL")
 
@@ -15,50 +16,28 @@ annotated.degenes<-merge(degenes.table, annots, by.x=0, by.y="ENSEMBL")
 uniq.annotated.degenes<-annotated.degenes[
                           !duplicated(annotated.degenes$Row.names),]
 
-# remove gene with no Entrez ID
-uniq.annotated.degenes<-uniq.annotated.degenes[
-                       !is.na(uniq.annotated.degenes$ENTREZID),]
-
 mart<-useMart(biomart="ensembl", dataset="ggallus_gene_ensembl")
 allgenes<-getBM(attributes='ensembl_gene_id', mart=mart)
 allgenes<-allgenes$ensembl_gene_id
 
-gene.vector<-as.integer(allgenes%in%uniq.annotated.degenes$Row.names)
+gene.vector<-as.integer(allgenes%in%degenes.table$Row.names)
 names(gene.vector)<-allgenes
 
 pwf=nullp(gene.vector, 'galGal4', 'ensGene')
 
-cat("KEGG pathway analysis..\n")
-# KEGG Pathway analysis
-KEGG = goseq(pwf, "galGal4", "ensGene", test.cats="KEGG")
+kegg = goseq(pwf, "galGal4", "ensGene", test.cats="KEGG")
 
 # Adjust P-value using BH method
-KEGG$padjust = p.adjust(KEGG$over_represented_pvalue, method="BH")
+kegg$padjust = p.adjust(kegg$over_represented_pvalue, method="BH")
 
 # Get pathway names for significant patways
-KEGG_SIG = KEGG[KEGG$padjust<0.05,]
-pathway = stack(mget(KEGG[KEGG$padjust<0.05,]$category, KEGGPATHID2NAME))
-KEGG_SIG$pathway = pathway$values
-xx = as.list(org.Gg.egPATH2EG)
-xx = xx[!is.na(xx)] # remove KEGG IDs that do not match any gene
+kegg.sig = kegg[kegg$padjust<0.05,]
+pathway = stack(mget(kegg.sig$category, KEGGPATHID2NAME))
+kegg.sig$pathway = pathway$values
 
-cat("Writing genes to files..\n")
-# Write genes in each pathway to separate files
-get_genes_kegg = function(c, data, prefix)
-{
-    m = match(xx[[c]], data$ENTREZID)
-    mm = m[!is.na(m)]
-    d = data.frame(c, data[mm,]$Row.names, data[mm,]$ENTREZID)
+write.table(kegg.sig, 'line7u_vs_i.ensembl.degenes.gga.kegg.txt',
+            sep='\t', row.names=F, quote=F)
 
-    filename = paste(prefix, c, sep="_")
-    write.table(d, filename, sep="\t", row.names=F, col.names=F, quote=F)
-    return(d)
-}
-df = lapply(KEGG_SIG$category, get_genes_kegg,
-                uniq.annotated.degenes,
-                "line7_goseq_KEGG_genes")
-
-write.table(KEGG_SIG, 'line7u_vs_i.ensembl.degenes.KEGG.txt', sep='\t',
-            row.names=F, quote=F)
-write.table(uniq.annotated.degenes, 'ensembl.uniq-annotated-degenes.txt',
+write.table(uniq.annotated.degenes[!is.na(uniq.annotated.degenes$PATH),],
+            'line7u_vs_i.ensembl.degenes.gga.kegg.id.txt',
             sep='\t', row.names=F, col.names=F, quote=F)
