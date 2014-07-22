@@ -40,19 +40,32 @@ get-de-seqs:
 		ensembl_genes.transcripts.fa Gallus_gallus.Galgal4.73.removed.knownIsoforms.txt \
 		> line7u_vs_i.degenes.fdr.05.fa
 
-run-blast-gallus:
+run-blast-human-full:
 
-	python $(protocol)/gene-rep-ensbl.py line7u_vs_i.degenes.fdr.05.fa \
-		> line7u_vs_i.degenes.fdr.05.fa.longest
+	# for a custom pathway annotation
+	python $(protocol)/gene-rep-ensbl.py Gallus_gallus.Galgal4.73.cdna.all.fa \
+		> ensembl.fa.longest
 
-	qsub -v "db=Gallus_prot,input=line7u_vs_i.degenes.fdr.05.fa.longest, \
-		program=blastx,output=line7u_vs_i.degenes.fdr.05.fa.longest.xml" \
-		$(protocol)/blast.sh
+	qsub -v "db=Human_prot,input=ensembl.fa.longest,program=blastx,\
+		output=ensembl.fa.longest.hsa.xml" $(protocol)/blast.sh
 
 run-blast-human:
 
 	# create a directory for human annotation
-	if [ ! -d human ]; then mkdir human;  fi
-	qsub -v "db=Human_prot,input=line7u_vs_i.degenes.fdr.05.fa.longest, \
-		program=blastx,output=human/line7u_vs_i.degenes.fdr.05.fa.longest.xml" \
+	qsub -v "db=Human_prot,input=line7u_vs_i.degenes.fdr.05.fa.longest,\
+		program=blastx,output=human/line7u_vs_i.degenes.fdr.05.fa.longest.hsa.xml" \
 		$(protocol)/blast.sh
+
+get-top-hits-human:
+
+	python $(protocol)/get_top_hits.py ensembl.fa.longest.hsa.xml \
+	> all-ensembl-hsa-tophits.txt
+
+get-tophits-degenes:
+
+	python $(protocol)/get_top_hits.py line7u_vs_i.degenes.fdr.05.fa.longest.hsa.xml \
+	> ensembl-hsa-tophits.txt
+
+	python $(protocol)/tophits-to-degenes-ensembl.py \
+		line7u_vs_i.degenes.fdr.05 ensembl-hsa-tophits.txt > \
+		line7u_vs_i.ensembl.degenes.fdr.05.tophits.hsa
