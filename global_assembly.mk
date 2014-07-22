@@ -115,9 +115,9 @@ get-tophits-degenes:
 		line7u_vs_i.degenes.fdr.05 assembly-gga-tophits.txt \
 		> line7u_vs_i.degenes.fdr.05.gga.tophits
 
-	# cd assembly/global_merged; \
-	# 	python $(protocol)/get_top_hits.py assembly-genes-hsa.xml \
-	# 	> assembly-hsa-tophits.txt
+	cd assembly/global_merged; \
+		python $(protocol)/get_top_hits.py assembly-genes-hsa.xml \
+		> assembly-hsa-tophits.txt
 
 	cd assembly/global_merged; \
 		python $(protocol)/tophits-to-degenes-assembly.py \
