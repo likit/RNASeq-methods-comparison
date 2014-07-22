@@ -2,40 +2,62 @@ get-all-pathways:
 
 	cd results; Rscript $(protocol)/get_all_ensembl_pathways.R
 
+create-custom-annotations:
+
+	# create chicken-human annotation
+	cd results; \
+	python $(protocol)/ensembl-human-tophits-to-annots.py \
+		all-ensembl-hsa-tophits.txt > all-ensembl-hsa-annotations.txt
+
+	cd results; \
+	python $(protocol)/create_kegg_annots_ensembl.py \
+		all-ensembl-hsa-annotations.txt ensembl_gallus_kegg_pathways.txt \
+		ensembl_human_kegg_pathways.txt > custom_annotations.txt
+
 run-goseq-ensembl-gallus:
 
 	cd results; Rscript $(protocol)/goseq_ensembl_gallus.R
+
+run-goseq-ensembl-human:
+
+	cd results; Rscript $(protocol)/goseq_ensembl_human.R
+
+run-goseq-ensembl-custom:
+
+	cd results; Rscript $(protocol)/goseq_ensembl_custom.R
 
 run-goseq-gimme-gallus:
 
 	cd results; Rscript $(protocol)/goseq_combined_gallus.R
 
-run-goseq-assembly-human:
+run-goseq-gimme-human:
 
-	# cd human/assembly; \
-	# 	python $(protocol)/get_top_hits.py \
-	# 	line7u_vs_i.degenes.fdr.05.fa.longest.xml > \
-	# 	line7u_vs_i.degenes.tophits.nucl.txt
+	cd results; Rscript $(protocol)/goseq_combined_human.R
 
-	cd human/assembly; \
-		Rscript $(protocol)/goseq_assembly_human.R
+run-goseq-gimme-custom:
 
-run-goseq-cufflinks-human:
+	cd results; Rscript $(protocol)/goseq_combined_custom.R
 
-	cd human/cufflinks; \
-		python $(protocol)/get_top_hits.py \
-		line7u_vs_i.cuffref.degenes.fdr.05.fa.longest.xml > \
-		line7u_vs_i.degenes.tophits.nucl.txt
+# run-goseq-cufflinks-gallus:
+# 
+# 	cd results; Rscript $(protocol)/goseq_cufflinks_gallus.R
+# 
+# run-goseq-cufflinks-human:
+# 
+# 	cd results; Rscript $(protocol)/goseq_cufflinks_human.R
 
-	cd human/cufflinks; \
-		Rscript $(protocol)/goseq_assembly_human.R
+run-goseq-cufflinks-custom:
 
-run-goseq-combined-human:
+	cd results; Rscript $(protocol)/goseq_cufflinks_custom.R
 
-	cd human/combined; \
-		python $(protocol)/get_top_hits.py \
-		line7u_vs_i.cuffref.degenes.fdr.05.fa.longest.xml > \
-		line7u_vs_i.degenes.tophits.nucl.txt
+# run-goseq-assembly-gallus:
+# 
+# 	cd results; Rscript $(protocol)/goseq_assembly_gallus.R
+# 
+# run-goseq-assembly-human:
+# 
+# 	cd results; Rscript $(protocol)/goseq_assembly_human.R
 
-	cd human/combined; \
-		Rscript $(protocol)/goseq_assembly_human.R
+run-goseq-assembly-custom:
+
+	cd results; Rscript $(protocol)/goseq_assembly_custom.R

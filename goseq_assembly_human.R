@@ -1,17 +1,19 @@
 library(goseq)
 library(org.Hs.eg.db)
 library(KEGG.db)
+library(ggplot2)
 library(biomaRt)
 
-degenes.table<-read.table('line7u_vs_i.ensembl.degenes.fdr.05.tophits.hsa',
+degenes.table<-read.table('line7u_vs_i.assembly.degenes.fdr.05.tophits.hsa',
                           stringsAsFactors=F, sep="\t", header=T)
 colnames(degenes.table)<-c("seqID", "geneID")
 annots<-select(org.Hs.eg.db, keys=degenes.table$geneID,
                columns=c("SYMBOL","ENTREZID","PATH"), keytype="ENSEMBL")
 
-annotated.degenes<-merge(degenes.table, annots, by.x="geneID", by.y="ENSEMBL")
+annotated.degenes<-merge(degenes.table, annots,
+                         by.x="geneID", by.y="ENSEMBL")
 
-# remove duplicated gene ID
+# remove duplicated Entrez ID
 uniq.annotated.degenes<-annotated.degenes[
                           !duplicated(annotated.degenes$geneID),]
 
@@ -26,8 +28,7 @@ names(gene.vector)<-allgenes
 
 pwf=nullp(gene.vector, 'hg19', 'ensGene')
 
-# KEGG Pathway analysis
-kegg = goseq(pwf, "hg19", "ensGene", test.cats="KEGG")
+kegg = goseq(pwf, 'hg19', 'ensGene', test.cats="KEGG")
 
 # Adjust P-value using BH method
 kegg$padjust = p.adjust(kegg$over_represented_pvalue, method="BH")
@@ -37,8 +38,8 @@ kegg.sig = kegg[kegg$padjust<0.05,]
 pathway = stack(mget(kegg.sig$category, KEGGPATHID2NAME))
 kegg.sig$pathway = pathway$values
 
-write.table(kegg.sig, 'line7u_vs_i.ensembl.degenes.hsa.kegg.txt', sep='\t',
+write.table(kegg.sig, 'line7u_vs_i.assembly.degenes.hsa.kegg.txt', sep='\t',
             row.names=F, quote=F)
 write.table(uniq.annotated.degenes[!is.na(uniq.annotated.degenes$PATH),],
-            'line7_vs_i.ensembl.degenes.hsa.kegg.id.txt',
-            sep='\t', row.names=F, col.names=F, quote=F)
+            'line7u_vs_i.assembly.degenes.hsa.kegg.id.txt', sep='\t',
+            row.names=F, col.names=F, quote=F)
