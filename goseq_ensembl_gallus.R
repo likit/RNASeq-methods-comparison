@@ -20,7 +20,7 @@ mart<-useMart(biomart="ensembl", dataset="ggallus_gene_ensembl")
 allgenes<-getBM(attributes='ensembl_gene_id', mart=mart)
 allgenes<-allgenes$ensembl_gene_id
 
-gene.vector<-as.integer(allgenes%in%degenes.table$Row.names)
+gene.vector<-as.integer(allgenes%in%rownames(degenes.table))
 names(gene.vector)<-allgenes
 
 pwf=nullp(gene.vector, 'galGal4', 'ensGene')
