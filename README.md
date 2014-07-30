@@ -46,7 +46,7 @@ Set up protocol and gimme path:
     export PROTOCOL=<path to protocol root directory>
     export GIMMEDIR=<path to Gimme root directory>
 
-###Cufflinks
+###Cufflinks 
 
 Run RSEM prepare reference:
 
@@ -66,7 +66,6 @@ Get top hits for DE genes from chicken and human:
 
 ###Global assembly
 
-
 Run RSEM prepare reference:
 
     make -f $PROTOCOL/global_assembly.mk rsem-prepare-reference-assembly
@@ -82,6 +81,35 @@ Run EBseq with FDR 0.05:
 Get top hits for DE genes from chicken and human:
 
     make -f $PROTOCOL/global_assembly.mk protocol=$PROTOCOL get-tophits-degenes
+
+###Local assembly
+
+Extract reads from each chromosome::
+
+    make -f $PROTOCOL/local_assembly.mk protocol=$PROTOCOL extract-reads
+
+Merge reads from each chromosome to local assembly directory::
+
+    make -f $PROTOCOL/local_assembly.mk protocol=$PROTOCOL merge-bams
+
+Run Velveth, Velvetg and Oases::
+
+    make -f $PROTOCOL/local_assembly.mk protocol=$PROTOCOL run-velveth-local
+    make -f $PROTOCOL/local_assembly.mk protocol=$PROTOCOL run-velvetg-local
+    make -f $PROTOCOL/local_assembly.mk protocol=$PROTOCOL run-oases-local
+
+Merge transcripts::
+
+    make -f $PROTOCOL/local_assembly.mk gimmedir=$GIMMEDIR combine-transcripts
+
+Clean transcripts and remove redundant transcripts::
+
+    make -f $PROTOCOL/local_assembly.mk clean-transcripts
+    make -f $PROTOCOL/local_assembly.mk remove-redundant-seq
+
+Align all transcripts to the genome::
+
+    make -f $PROTOCOL/local_assembly.mk align-transcripts:
 
 ###Merged models
 
